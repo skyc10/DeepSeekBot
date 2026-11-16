@@ -226,5 +226,12 @@ export function setWallpaper(
   doc: AppearanceDocument,
   wallpaper: WallpaperMedia | undefined,
 ): AppearanceDocument {
-  return { ...doc, ...(wallpaper === undefined ? {} : { wallpaper }), revision: doc.revision + 1 };
+  const next: AppearanceDocument = { ...doc, revision: doc.revision + 1 };
+  if (wallpaper === undefined) {
+    // Explicitly remove the key so "clear wallpaper" actually clears it on disk.
+    delete next.wallpaper;
+  } else {
+    next.wallpaper = wallpaper;
+  }
+  return next;
 }

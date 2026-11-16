@@ -143,6 +143,23 @@ describe('appearance model - edits and resolution', () => {
     expect(doc.wallpaper).toEqual({ kind: 'color', color: '#112233' });
   });
 
+  it('setWallpaper(undefined) removes the field and bumps revision', () => {
+    let doc = setWallpaper(defaultAppearanceDocument(), {
+      kind: 'image',
+      id: 'wall.jpg',
+      fit: 'cover',
+      x: 0.5,
+      y: 0.5,
+      fade: 60,
+    });
+    expect(doc.wallpaper).toBeDefined();
+    const before = doc.revision;
+    doc = setWallpaper(doc, undefined);
+    expect('wallpaper' in doc).toBe(false);
+    expect(doc.wallpaper).toBeUndefined();
+    expect(doc.revision).toBe(before + 1);
+  });
+
   it('setPreset touches only one scheme', () => {
     const doc = setPreset(defaultAppearanceDocument(), 'light', 'mist-purple');
     expect(doc.modes.light.preset).toBe('mist-purple');
