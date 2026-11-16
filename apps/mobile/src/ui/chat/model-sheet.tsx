@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore, type ComponentType } from 'react';
+import { useState, useSyncExternalStore, type ComponentType } from 'react';
 import { SectionList } from 'react-native';
 
 import {
@@ -19,7 +19,6 @@ import {
   classifyModelList,
   getModelSourceSnapshot,
   modelSourceText,
-  recordModelSource,
   subscribeModelSource,
 } from '../../host/model-settings';
 import { Text } from '../primitives/text';
@@ -69,9 +68,6 @@ export function ModelSheet({
   const [busy, setBusy] = useState<string>();
   const [error, setError] = useState<string>();
   const modelCount = model.status === 'ready' ? model.value.models.length : 0;
-  useEffect(() => {
-    if (model.status === 'ready') recordModelSource('catalog.models', modelCount);
-  }, [model.status, modelCount]);
   const close = () => {
     if (busy !== undefined) return;
     setError(undefined);

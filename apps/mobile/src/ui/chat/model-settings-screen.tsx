@@ -1,7 +1,6 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -22,7 +21,6 @@ import {
   modelSourceText,
   classifyModelList,
   getModelSourceSnapshot,
-  recordModelSource,
   saveModelPreset,
   searchModels,
   subscribeModelSource,
@@ -144,9 +142,6 @@ function ModelsView({
   const [saved, setSaved] = useState(false);
   const value = models.value;
   const modelCount = value?.models.length ?? 0;
-  useEffect(() => {
-    recordModelSource('catalog.models', modelCount);
-  }, [modelCount, modelScopeKey(scope)]);
   const openPicker = (field: ModelField) => {
     if (scope.kind === 'bot')
       router.push({ pathname: '/bot/[slug]/model-picker', params: { slug: scope.slug, field } });
