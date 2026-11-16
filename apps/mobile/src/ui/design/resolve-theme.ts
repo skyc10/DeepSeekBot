@@ -6,7 +6,37 @@ import { layers, tint, type Layer, type LayerName } from './layers';
 import { palette } from './palette.generated';
 import { mono, touch, typeScale, weight, type PlatformOS } from './tokens';
 
-export type ColorRole = keyof typeof palette.light;
+export type ThemePreset = 'classic-blue' | 'mist-purple' | 'forest-green' | 'warm-amber';
+export type ThemeStyle = 'default' | 'glass' | 'image';
+export type Material = { color: string; opacity: number; blur: number };
+export type AppearanceDocument = {
+  version: 1;
+  revision: number;
+  preference: 'system' | 'light' | 'dark';
+  style: ThemeStyle;
+  modes: {
+    light: {
+      preset: ThemePreset;
+      primary?: string;
+      materials?: { header?: Partial<Material>; body?: Partial<Material> };
+    };
+    dark: {
+      preset: ThemePreset;
+      primary?: string;
+      materials?: { header?: Partial<Material>; body?: Partial<Material> };
+    };
+  };
+  wallpaper?:
+    | { kind: 'color'; color: string }
+    | { kind: 'image'; id: string; fit: 'cover' | 'contain'; x: number; y: number; fade: number };
+};
+
+export const APPEARANCE_PRIMARY: Record<ThemePreset, { light: string; dark: string }> = {
+  'classic-blue': { light: '#4176e6', dark: '#7aaaff' },
+  'mist-purple': { light: '#7957c9', dark: '#b19af0' },
+  'forest-green': { light: '#287454', dark: '#7cc7a0' },
+  'warm-amber': { light: '#94600d', dark: '#e6b75c' },
+};
 export type ColorScheme = 'light' | 'dark';
 
 export type Appearance = {
@@ -16,12 +46,14 @@ export type Appearance = {
 
 export type DesignTheme = {
   scheme: ColorScheme;
+  style: ThemeStyle;
   fontScale: number;
   largeText: boolean;
   color: Record<ColorRole, string>;
   layer: Record<LayerName, Layer>;
   overlay: { fill: string; handle: string };
   scrim: string;
+  material: { header: Material; body: Material };
   type: (typeof typeScale)[PlatformOS];
   weight: (typeof weight)[PlatformOS];
   touch: number;
@@ -118,20 +150,28 @@ export function headerBand(scheme: ColorScheme, color: Record<ColorRole, string>
 
 export function resolveTheme(
   system: ColorScheme,
-  appearance: Appearance = {},
+  appearance: Appearance & { style?: ThemeStyle; preset?: ThemePreset; primary?: string } = {},
   os: PlatformOS = 'ios',
 ): DesignTheme {
   const scheme =
     appearance.scheme === undefined || appearance.scheme === 'system' ? system : appearance.scheme;
-  const color = withAccent({ ...palette[scheme] }, appearance.accent ?? palette[scheme].accent);
+  const preset = appearance.preset ?? 'classic-blue';
+  const primary = appearance.primary ?? APPEARANCE_PRIMARY[preset][scheme];
+  const color = withAccent({ ...palette[scheme] }, primary);
+  const material: { header: Material; body: Material } = {
+    header: { color: color.surface, opacity: 80, blur: 24 },
+    body: { color: color.base, opacity: 100, blur: 0 },
+  };
   return {
     scheme,
+    style: appearance.style ?? 'default',
     fontScale: 1,
     largeText: false,
     color,
     layer: layers(scheme, color),
     overlay: { fill: color.sheet, handle: tint(color.sheet, color.fg, 0.38) },
     scrim: SCRIM[scheme],
+    material,
     type: typeScale[os],
     weight: weight[os],
     touch: touch[os],
