@@ -10,13 +10,33 @@ import {
 import type { HostClient } from '../src/host/host-settings';
 
 const hex = (c: string) => c.repeat(64);
+const instance = {
+  formatVersion: 1,
+  protocolVersion: 1,
+  instanceId: 'inst_1',
+  name: 'Work instance',
+  environment: 'local',
+  server: 'https://cloud.example.com',
+  auth: {
+    provider: 'workos',
+    clientId: 'client_abc',
+    issuer: 'https://api.workos.com/user_management/client_abc',
+    authkitDomain: 'work.authkit.app',
+    deviceAuthorizationEndpoint: 'https://api.workos.com/user_management/authorize/device',
+    tokenEndpoint: 'https://api.workos.com/user_management/authenticate',
+    jwksUri: 'https://api.workos.com/sso/jwks/client_abc',
+    mobileRedirectUris: ['ai.botharness.deepseekbot.dev:/oauth2redirect'],
+  },
+};
 const credential = {
   version: 1,
+  config: instance,
   organizationId: 'org_abc123',
   channelId: `ch_${hex('a')}`,
   actorId: `ag_${hex('b')}`,
   ownerUserId: 'user_abc123',
   name: 'Work cloud',
+  operationId: `operation_${hex('d').slice(0, 20)}`,
   secret: hex('c'),
 };
 
@@ -57,15 +77,45 @@ describe('parseCredentialText', () => {
       kind: 'invalid',
       reason: 'shape',
     });
+    expect(parseCredentialText(JSON.stringify({ ...credential, secret: 'not-hex' }))).toEqual({
+      kind: 'invalid',
+      reason: 'shape',
+    });
+    expect(parseCredentialText(JSON.stringify({ ...credential, operationId: 'short' }))).toEqual({
+      kind: 'invalid',
+      reason: 'shape',
+    });
+    expect(parseCredentialText(JSON.stringify({ ...credential, name: 'bad\u0001name' }))).toEqual({
+      kind: 'invalid',
+      reason: 'shape',
+    });
+    expect(
+      parseCredentialText(JSON.stringify({ ...credential, config: { formatVersion: 1 } })),
+    ).toEqual({ kind: 'invalid', reason: 'shape' });
     expect(parseCredentialText('x'.repeat(20_001))).toEqual({ kind: 'invalid', reason: 'large' });
   });
 });
 
 describe('cloud connections transport', () => {
   it('lists connections through the cloudConnections bridge', async () => {
-    const value = { connections: [{ active: true }] };
+    const { secret: _secret, operationId: _operation, ...publicCredential } = credential;
+    const connection = {
+      connection: {
+        ...publicCredential,
+        id: `cloud-${hex('e')}`,
+        fingerprint: hex('e'),
+      },
+      active: true,
+      revision: 1,
+      cursor: 0,
+      policy: { allowedUsers: [], forwardTargets: [], environment: 'local-host' },
+    };
+    const value = { connections: [connection, { active: true }, 'garbage'] };
     const { client, calls } = harness(value);
-    await expect(listCloudConnections(client)).resolves.toEqual({ kind: 'ok', result: value });
+    await expect(listCloudConnections(client)).resolves.toEqual({
+      kind: 'ok',
+      result: { connections: [connection] },
+    });
     expect(calls).toEqual([{ method: 'cloudConnections', args: { operation: 'list' } }]);
   });
 

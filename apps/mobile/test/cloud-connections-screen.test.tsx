@@ -74,11 +74,30 @@ const connection: CloudConnectionView = {
 
 const credential = {
   version: 1,
+  config: {
+    formatVersion: 1,
+    protocolVersion: 1,
+    instanceId: 'inst_1',
+    name: 'Work instance',
+    environment: 'local',
+    server: 'https://cloud.example.com',
+    auth: {
+      provider: 'workos',
+      clientId: 'client_abc',
+      issuer: 'https://api.workos.com/user_management/client_abc',
+      authkitDomain: 'work.authkit.app',
+      deviceAuthorizationEndpoint: 'https://api.workos.com/user_management/authorize/device',
+      tokenEndpoint: 'https://api.workos.com/user_management/authenticate',
+      jwksUri: 'https://api.workos.com/sso/jwks/client_abc',
+      mobileRedirectUris: ['ai.botharness.deepseekbot.dev:/oauth2redirect'],
+    },
+  },
   organizationId: 'org_abc123',
   channelId: `ch_${'a'.repeat(64)}`,
   actorId: `ag_${'b'.repeat(64)}`,
   ownerUserId: 'user_abc123',
   name: 'Work cloud',
+  operationId: `operation_${'d'.repeat(20)}`,
   secret: 'c'.repeat(64),
 };
 

@@ -49,9 +49,18 @@ describe('credentials transport', () => {
     ]);
   });
 
-  it('tolerates a malformed describe response', async () => {
+  it('drops malformed describe responses and untrusted entries', async () => {
     const { client } = harness('not an object');
     await expect(describeCredentials(client, ['KEY'])).resolves.toEqual({});
+
+    const { client: client2 } = harness({
+      GOOD: { configured: true, writable: true, masked: 'sk-•••' },
+      MISSING: { configured: true },
+      WRONG: { configured: 'yes', writable: true },
+    });
+    await expect(describeCredentials(client2, ['GOOD', 'MISSING', 'WRONG'])).resolves.toEqual({
+      GOOD: { configured: true, writable: true, masked: 'sk-•••' },
+    });
   });
 
   it('writes the secret value once through credentials/set', async () => {
@@ -81,6 +90,12 @@ describe('credentials transport', () => {
     await expect(setCredential(client, 'KEY', 'v')).resolves.toEqual({
       kind: 'rejected',
       message: 'bad value',
+    });
+
+    fail(new MethodRefused('credentials/invalid', 'rejected sk-secret-value'));
+    await expect(setCredential(client, 'KEY', 'sk-secret-value')).resolves.toEqual({
+      kind: 'rejected',
+      message: 'rejected [redacted]',
     });
 
     fail(new Error('network'));

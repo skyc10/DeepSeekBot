@@ -30,10 +30,121 @@ export type CloudResult =
   | { kind: 'refused' }
   | { kind: 'error' };
 
+const record = (value: unknown): Record<string, unknown> | undefined =>
+  value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+
+const hasControl = (text: string) =>
+  [...text].some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127);
+
+const MOBILE_REDIRECT_URI = 'ai.botharness.deepseekbot.dev:/oauth2redirect';
+
+/** Mirror the Host's instance-config shape so bad pastes fail before the write. */
+function validConfig(value: unknown): boolean {
+  const config = record(value);
+  if (!config) return false;
+  const keys = [
+    'formatVersion',
+    'protocolVersion',
+    'instanceId',
+    'name',
+    'environment',
+    'server',
+    'auth',
+  ];
+  if (Object.keys(config).length !== keys.length || keys.some((key) => !Object.hasOwn(config, key)))
+    return false;
+  if (config['formatVersion'] !== 1 || config['protocolVersion'] !== 1) return false;
+  if (
+    typeof config['instanceId'] !== 'string' ||
+    !/^[a-zA-Z0-9_-]{1,100}$/.test(config['instanceId']) ||
+    typeof config['name'] !== 'string' ||
+    !config['name'].trim() ||
+    config['name'].length > 100 ||
+    hasControl(config['name']) ||
+    (config['environment'] !== 'uat' && config['environment'] !== 'local')
+  )
+    return false;
+  if (typeof config['server'] !== 'string') return false;
+  try {
+    const url = new URL(config['server']);
+    if (
+      url.protocol !== 'https:' ||
+      url.origin !== config['server'] ||
+      url.username ||
+      url.password
+    )
+      return false;
+  } catch {
+    return false;
+  }
+  const auth = record(config['auth']);
+  if (!auth) return false;
+  const authKeys = [
+    'provider',
+    'clientId',
+    'issuer',
+    'authkitDomain',
+    'deviceAuthorizationEndpoint',
+    'tokenEndpoint',
+    'jwksUri',
+    'mobileRedirectUris',
+  ];
+  if (
+    Object.keys(auth).length !== authKeys.length ||
+    authKeys.some((key) => !Object.hasOwn(auth, key)) ||
+    auth['provider'] !== 'workos' ||
+    typeof auth['clientId'] !== 'string' ||
+    !/^client_[A-Za-z0-9]+$/.test(auth['clientId']) ||
+    auth['issuer'] !== `https://api.workos.com/user_management/${auth['clientId']}` ||
+    auth['deviceAuthorizationEndpoint'] !==
+      'https://api.workos.com/user_management/authorize/device' ||
+    auth['tokenEndpoint'] !== 'https://api.workos.com/user_management/authenticate' ||
+    auth['jwksUri'] !== `https://api.workos.com/sso/jwks/${auth['clientId']}` ||
+    typeof auth['authkitDomain'] !== 'string' ||
+    !/^[a-z0-9]+(?:-[a-z0-9]+)*\.authkit\.app$/.test(auth['authkitDomain']) ||
+    !Array.isArray(auth['mobileRedirectUris']) ||
+    (auth['mobileRedirectUris'] as unknown[]).length > 1 ||
+    (auth['mobileRedirectUris'] as unknown[]).some((uri) => uri !== MOBILE_REDIRECT_URI)
+  )
+    return false;
+  return true;
+}
+
+function validConnection(value: unknown): value is CloudConnectionView {
+  const entry = record(value);
+  const connection = record(entry?.['connection']);
+  const policy = record(entry?.['policy']);
+  if (!entry || !connection || !policy) return false;
+  return (
+    typeof connection['id'] === 'string' &&
+    /^cloud-[a-f0-9]{64}$/.test(connection['id']) &&
+    typeof connection['fingerprint'] === 'string' &&
+    typeof connection['name'] === 'string' &&
+    typeof connection['organizationId'] === 'string' &&
+    typeof connection['channelId'] === 'string' &&
+    typeof connection['actorId'] === 'string' &&
+    typeof connection['ownerUserId'] === 'string' &&
+    connection['version'] === 1 &&
+    typeof entry['active'] === 'boolean' &&
+    Number.isSafeInteger(entry['revision']) &&
+    Number.isSafeInteger(entry['cursor']) &&
+    Array.isArray(policy['allowedUsers']) &&
+    Array.isArray(policy['forwardTargets']) &&
+    typeof policy['environment'] === 'string'
+  );
+}
+
 function callResult(value: unknown): CloudConnectionsResult {
-  if (typeof value !== 'object' || value === null || !Array.isArray((value as { connections?: unknown }).connections))
-    return { connections: [] };
-  return value as CloudConnectionsResult;
+  const raw = record(value);
+  if (!raw || !Array.isArray(raw['connections'])) return { connections: [] };
+  return {
+    connections: raw['connections'].filter(validConnection),
+    ...(typeof raw['credentialRemoved'] === 'boolean'
+      ? { credentialRemoved: raw['credentialRemoved'] }
+      : {}),
+  };
 }
 
 function failure(error: unknown): CloudResult {
@@ -114,6 +225,12 @@ export function parseCredentialText(text: string): CredentialText {
     typeof v.name === 'string' &&
     v.name.trim().length > 0 &&
     v.name.length <= 80 &&
+    !hasControl(v.name) &&
+    typeof v.operationId === 'string' &&
+    /^[A-Za-z0-9_-]{16,100}$/.test(v.operationId) &&
+    typeof v.secret === 'string' &&
+    /^[a-f0-9]{64}$/.test(v.secret) &&
+    validConfig(v.config) &&
     Object.keys(v).every((key) => allowed.includes(key));
   return valid ? { kind: 'valid', credential: v } : { kind: 'invalid', reason: 'shape' };
 }
