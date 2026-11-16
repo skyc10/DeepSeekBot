@@ -910,7 +910,7 @@ const en = {
     credentialPlaceholder: 'Paste the credential JSON',
     reveal: 'Show credential',
     hide: 'Hide credential',
-    invalid: (reason: 'json' | 'shape' | 'large') =>
+    invalid: (reason: 'json' | 'shape' | 'large'): string =>
       reason === 'json'
         ? 'Enter valid JSON.'
         : reason === 'large'
@@ -928,9 +928,9 @@ const en = {
     loadFailed: 'Could not load IM apps.',
     empty: 'No IM apps can be set up on this Host.',
     reload: 'Reload',
-    platform: (platform: 'feishu' | 'weixin') =>
+    platform: (platform: 'feishu' | 'weixin'): string =>
       platform === 'feishu' ? 'Feishu / Lark' : 'WeChat',
-    kind: (kind: 'credentials' | 'qr') =>
+    kind: (kind: 'credentials' | 'qr'): string =>
       kind === 'credentials' ? 'App credentials' : 'Scan a QR code',
     state: (state: string) => `Status: ${state}`,
     qr: 'Authorization QR code',
