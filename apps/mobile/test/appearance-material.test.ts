@@ -14,8 +14,29 @@ describe('resolveTheme - preset drives primary', () => {
   });
 
   it('explicit primary overrides the preset', () => {
-    const t = resolveTheme('light', { scheme: 'light', preset: 'forest-green', primary: '#123456' });
+    const t = resolveTheme('light', {
+      scheme: 'light',
+      preset: 'forest-green',
+      primary: '#123456',
+    });
     expect(t.color.accent).toBe('#123456');
+  });
+
+  it('a caller-supplied accent drives the primary when no primary is set (regression)', () => {
+    // design-tokens.test.ts "applies a custom accent" failed in v2 because accent was ignored.
+    expect(resolveTheme('light', { accent: '#FFD60A' }).color.accent).toBe('#ffd60a');
+    expect(resolveTheme('dark', { accent: '#5b2ecc' }).color.accent).toBe('#5b2ecc');
+  });
+
+  it('an invalid accent falls back to the preset palette primary', () => {
+    const defaultAccent = resolveTheme('light', { scheme: 'light', preset: 'classic-blue' }).color
+      .accent;
+    expect(resolveTheme('light', { accent: 'red' }).color.accent).toBe(defaultAccent);
+  });
+
+  it('accent takes precedence over an explicit primary (integration branch parity)', () => {
+    const t = resolveTheme('light', { primary: '#111111', accent: '#FFD60A' });
+    expect(t.color.accent).toBe('#ffd60a');
   });
 });
 

@@ -196,7 +196,12 @@ export function resolveTheme(
   const scheme =
     appearance.scheme === undefined || appearance.scheme === 'system' ? system : appearance.scheme;
   const preset = appearance.preset ?? 'classic-blue';
-  const primary = appearance.primary ?? APPEARANCE_PRIMARY[preset][scheme];
+  // Precedence matches the integration branch: a caller-supplied accent (AccentProvider / host
+  // look) wins, then an explicit primary, then the preset default. Historically this branch
+  // ignored `accent` entirely, so resolveTheme('light',{accent:'#FFD60A'}) never painted it —
+  // design-tokens' "custom accent" case caught it, and the integration branch already fixed it.
+  // withAccent rejects non-hex values, so an invalid accent still falls back to the preset color.
+  const primary = appearance.accent ?? appearance.primary ?? APPEARANCE_PRIMARY[preset][scheme];
   const color = withAccent({ ...palette[scheme] }, primary);
   const style = appearance.style ?? 'default';
   const glass = appearance.materialEnabled === true && (style === 'glass' || style === 'image');
