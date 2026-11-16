@@ -13,6 +13,7 @@ export interface SettingsActions {
   onAppIcon(): void;
   onNotifications(): void;
   onStorage(): void;
+  onHostSettings(): void;
   onModels(): void;
   onCopyVersion(text: string): void;
 }
@@ -75,6 +76,15 @@ export function SettingsView({
           detail={t.storage.hint}
           disclosure
           onPress={actions.onStorage}
+        />
+        <SettingsRow
+          on={SHEET_GROUP}
+          title={t.hostSettings.title}
+          icon="computer"
+          detail={t.hostSettings.hint}
+          disclosure
+          testID="settings-host-settings"
+          onPress={actions.onHostSettings}
         />
       </SettingsSection>
       <SettingsSection title={t.interface} on={SHEET_GROUP} footer={t.interfacePreferences.local}>

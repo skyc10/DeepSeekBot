@@ -60,6 +60,7 @@ export default function SettingsScreen() {
           onAppIcon: () => router.push('/settings/app-icon'),
           onNotifications: () => router.push('/settings/notifications'),
           onStorage: () => router.push('/settings/storage'),
+          onHostSettings: () => router.push('/settings/host-settings'),
           onModels: () => router.push('/settings/models'),
           onCopyVersion: copyMessage,
         }}

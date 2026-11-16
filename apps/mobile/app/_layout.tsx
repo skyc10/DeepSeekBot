@@ -92,6 +92,7 @@ function RootNavigator() {
     ['model-preset', undefined],
     ['notifications', t.notifications],
     ['storage', t.storage.title],
+    ['host-settings', undefined],
     ['app-icon', t.appIcon],
     ['activity-count', t.activityCountSettings.title],
     ['chat-background', t.chatBackground.global],
@@ -191,7 +192,9 @@ function RootNavigator() {
                       name={`settings/${name}`}
                       options={{
                         ...(title === undefined ? {} : { title }),
-                        ...(name === 'profile-name' ? { headerShown: false } : {}),
+                        ...(name === 'profile-name' || name === 'host-settings'
+                          ? { headerShown: false }
+                          : {}),
                         headerStyle: { backgroundColor: design.overlay.fill },
                         contentStyle: { backgroundColor: design.overlay.fill },
                       }}

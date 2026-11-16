@@ -843,6 +843,29 @@ const en = {
         `Deleted ${messageCount(messages)} and freed ${size}.`,
     },
   },
+  hostSettings: {
+    title: 'Host settings',
+    hint: 'Write settings on this computer',
+    loading: 'Loading settings…',
+    loadFailed: 'Could not load settings.',
+    empty: 'This computer has no settings namespaces.',
+    revision: (revision: number) => `Revision ${revision}`,
+    valueLabel: 'Value (JSON)',
+    invalidJson: 'Enter a valid JSON object.',
+    secretsHint: (count: number) =>
+      count === 1
+        ? '1 credential is managed separately and is not shown or writable here.'
+        : `${count} credentials are managed separately and are not shown or writable here.`,
+    save: 'Save',
+    saved: 'Saved.',
+    saveFailed: 'Could not save. Try again.',
+    readOnly: 'This namespace is read-only in this deployment.',
+    conflict: (expected: number, actual: number) =>
+      `These settings changed from revision ${expected} to ${actual} while this screen was open. Reload to edit the current values.`,
+    rejected: 'The value was rejected. Check it and try again.',
+    refused: 'This computer refused the change.',
+    reload: 'Reload',
+  },
   activityCountSettings: {
     title: 'Activity count',
     hint: 'Choose what the badge number counts. This phone only.',
@@ -3351,6 +3374,27 @@ const zh: typeof en = {
       nothing: '没有符合条件的消息。可以选更早的时间或更多聊天。',
       done: (messages: number, size: string) => `已删除 ${messages} 条消息，释放 ${size}。`,
     },
+  },
+  hostSettings: {
+    title: '主机设置',
+    hint: '写入这台电脑上的设置',
+    loading: '正在加载设置…',
+    loadFailed: '无法加载设置。',
+    empty: '这台电脑上没有设置命名空间。',
+    revision: (revision: number) => `版本 ${revision}`,
+    valueLabel: '值（JSON）',
+    invalidJson: '请输入合法的 JSON 对象。',
+    secretsHint: (count: number) =>
+      `有 ${count} 项凭据单独管理，此处不显示也不可修改。`,
+    save: '保存',
+    saved: '已保存。',
+    saveFailed: '保存失败，再试一次。',
+    readOnly: '此部署中该命名空间为只读。',
+    conflict: (expected: number, actual: number) =>
+      `打开此页面期间，设置从版本 ${expected} 变成了 ${actual}。请重新加载后再编辑当前值。`,
+    rejected: '该值被拒绝，请检查后重试。',
+    refused: '这台电脑拒绝了该修改。',
+    reload: '重新加载',
   },
   activityCountSettings: {
     title: '活动数字',
