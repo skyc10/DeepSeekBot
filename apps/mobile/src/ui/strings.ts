@@ -198,6 +198,21 @@ const en = {
       'Saved on this phone. Message display applies to new replies; delivery status shows whether mentioned Bots received your message.',
     storageError: 'Could not save this choice. Try again.',
   },
+  themeSettings: {
+    title: 'Theme',
+    preset: 'Color theme',
+    presetHint: 'Applied across the whole app. Choose separately for light and dark.',
+    presetNames: {
+      'classic-blue': 'Classic blue',
+      'mist-purple': 'Mist purple',
+      'forest-green': 'Forest green',
+      'warm-amber': 'Warm amber',
+    },
+    glass: 'Glass surfaces',
+    glassHint: 'Frosted on Android, Liquid Glass on iOS.',
+    openFailed: 'Could not open theme settings.',
+    storageError: 'Could not save the theme. Your previous theme is unchanged.',
+  },
   channelCreation: {
     chooseBots: 'Choose Bots',
     selected: (count: number) => `${count} selected`,
@@ -2776,6 +2791,21 @@ const zh: typeof en = {
     dark: '深色',
     local: '保存在这台手机上。消息显示对新回复生效；投递状态会在消息旁显示被 @ 的 Bot 是否收到。',
     storageError: '未能保存，再试一次。',
+  },
+  themeSettings: {
+    title: '主题',
+    preset: '配色主题',
+    presetHint: '全应用生效。浅色与深色可分别选择。',
+    presetNames: {
+      'classic-blue': '经典蓝',
+      'mist-purple': '雾紫',
+      'forest-green': '森林绿',
+      'warm-amber': '暖琥珀',
+    },
+    glass: '玻璃材质',
+    glassHint: 'Android 为静态磨砂，iOS 为原生 Liquid Glass。',
+    openFailed: '打开主题设置失败。',
+    storageError: '保存主题失败，原主题已保留。',
   },
   channelCreation: {
     chooseBots: '选择 Bot',

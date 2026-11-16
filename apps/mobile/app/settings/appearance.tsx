@@ -1,9 +1,7 @@
-import { View, Text } from 'react-native';
+import { AppearanceSettingsContent } from '../../src/ui/appearance-settings';
+import { useAppearance } from '../../src/ui/native-appearance';
 
 export default function AppearanceSettingsScreen() {
-  return (
-    <View>
-      <Text>Appearance</Text>
-    </View>
-  );
+  const snapshot = useAppearance();
+  return <AppearanceSettingsContent snapshot={snapshot} />;
 }

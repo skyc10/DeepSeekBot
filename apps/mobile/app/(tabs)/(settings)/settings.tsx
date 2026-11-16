@@ -41,6 +41,15 @@ export default function SettingsScreen() {
         messageDisplay={<MessageDisplaySetting />}
         sendJump={<SendJumpSetting />}
         activityCount={<ActivityCountLink />}
+        theme={
+          <SettingsRow
+            on={SHEET_GROUP}
+            title={t.themeSettings.title}
+            icon="appearance"
+            disclosure
+            onPress={() => router.push('/settings/appearance')}
+          />
+        }
         hapticFeedback={<HapticFeedbackSetting />}
         deliveryReceipts={<DeliveryReceiptSetting />}
         chatBackground={
