@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import { currentModel, loadGlobalModel, type BotModel } from '../src/host/bot-settings';
 import { createHostClient } from '../src/host/client';
-import { searchModels } from '../src/host/model-settings';
+import {
+  classifyModelList,
+  getModelSourceSnapshot,
+  recordModelSource,
+  searchModels,
+} from '../src/host/model-settings';
 import { FakeHost } from './fake-host';
 
 const models = [
@@ -32,6 +37,40 @@ describe('model switch list', () => {
     expect(state.models).toHaveLength(models.length);
     expect(searchModels(state.models, '')).toHaveLength(models.length);
     expect(searchModels(state.models, 'pro').map((entry) => entry.model)).toEqual(['pro']);
+  });
+});
+
+describe('thin and failed catalog states', () => {
+  it('classifies empty, single and failed catalogs distinctly', () => {
+    expect(classifyModelList(0)).toBe('empty');
+    expect(classifyModelList(1)).toBe('single');
+    expect(classifyModelList(2)).toBe('ok');
+    expect(classifyModelList(2, true)).toBe('failed');
+    expect(classifyModelList(0, true)).toBe('failed');
+  });
+
+  it('records which projection supplied the list', () => {
+    recordModelSource('catalog.models', 3);
+    const last = getModelSourceSnapshot().at(-1);
+    expect(last?.source).toBe('catalog.models');
+    expect(last?.count).toBe(3);
+  });
+
+  it('keeps credential-missing models visible instead of hiding them', () => {
+    const withMissing = [
+      ...models,
+      {
+        provider: 'openai',
+        providerName: 'OpenAI',
+        model: 'locked',
+        modelName: 'Locked',
+        credential: 'missing' as const,
+        efforts: [],
+      },
+    ];
+    const entries = searchModels(withMissing, '');
+    expect(entries).toHaveLength(models.length + 1);
+    expect(entries.some((entry) => entry.credential === 'missing')).toBe(true);
   });
 });
 
