@@ -1,0 +1,23 @@
+{
+  "rules": {
+    "typescript/no-floating-promises": "error"
+  },
+  "ignorePatterns": [
+    "dist",
+    "coverage",
+    ".agents",
+    ".claude",
+    "agent",
+    "apps/docs",
+    "reference",
+    ".scratch",
+    ".worktrees",
+    ".tmp",
+    "n",
+    "n1",
+    "output",
+    "packages/client/vendor/dsh-ui-theme-022-rc2",
+    "scripts/fixtures/lint-ratchet",
+    "packages/*/lib/client.js"
+  ]
+}
