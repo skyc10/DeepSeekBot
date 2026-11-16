@@ -17,6 +17,7 @@ import { SHEET_GROUP } from '../../../src/ui/chat/sheet';
 import { SettingsRow } from '../../../src/ui/primitives/settings-row';
 import { useStrings } from '../../../src/ui/strings';
 import { SettingsView } from '../../../src/ui/settings-view';
+import { RouteSelector } from '../../../src/ui/shell/route-selector';
 import { AccountProfileRow } from '../../../src/ui/shell/account-profile-row';
 import { SettingsTabPage } from '../../../src/ui/shell/settings-tab-page';
 
@@ -52,6 +53,7 @@ export default function SettingsScreen() {
             onPress={() => router.push('/settings/chat-background')}
           />
         }
+        routeSelector={<RouteSelector />}
         key={saved?.hostId}
         loadUsage={usage}
         version={appBuildLabel(currentAppBuild())}
