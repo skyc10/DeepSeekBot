@@ -10,6 +10,7 @@ import {
 } from './appearance-model';
 import { SHEET_GROUP } from './chat/sheet';
 import { appearanceStore, type AppearanceSnapshot } from './native-appearance';
+import { Button } from './primitives/button';
 import { PreferenceRow } from './primitives/preference-row';
 import { SettingsRow, SettingsSection } from './primitives/settings-row';
 import { SettingsForm } from './primitives/settings-form';
@@ -79,12 +80,7 @@ export function AppearanceSettingsContent({
           icon="appearance"
           testID="theme-style"
           value={doc.style}
-          options={STYLES.map((style) => ({
-            value: style,
-            label: styleLabels[style],
-            // Use an existing glyph from the row icon set; all presets share one identifier.
-            icon: 'appearance' as const,
-          }))}
+          options={STYLES.map((style) => ({ value: style, label: styleLabels[style] }))}
           onChange={(style) => appearanceStore.setStyle(style)}
         />
       </SettingsSection>
@@ -124,19 +120,31 @@ export function AppearanceSettingsContent({
           />
         )}
         {error ? (
-          <View style={{ padding: space.x5 }}>
+          <View style={{ padding: space.x5, gap: space.x2 }}>
             <Text variant="meta" tone="danger">
               {t.wallpaperImportFailed}
             </Text>
+            <Button
+              label={copy.retry}
+              variant="text"
+              onPress={chooseWallpaper}
+              testID="theme-wallpaper-retry"
+            />
           </View>
         ) : null}
       </SettingsSection>
       {snapshot.storageError ? (
         <SettingsSection on={SHEET_GROUP}>
-          <View style={{ padding: space.x5 }}>
+          <View style={{ padding: space.x5, gap: space.x2 }}>
             <Text variant="meta" tone="danger">
               {t.storageError}
             </Text>
+            <Button
+              label={copy.retry}
+              variant="text"
+              onPress={() => appearanceStore.retrySave()}
+              testID="theme-storage-retry"
+            />
           </View>
         </SettingsSection>
       ) : null}
@@ -165,7 +173,6 @@ function SchemePresetRow({
       options={APPEARANCE_PRESETS.map((preset) => ({
         value: preset,
         label: presetNames[preset],
-        icon: 'appearance' as const,
       }))}
       onChange={(preset) => appearanceStore.setPreset(scheme, preset)}
     />
