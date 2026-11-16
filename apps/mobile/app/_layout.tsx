@@ -95,6 +95,7 @@ function RootNavigator() {
     ['host-settings', undefined],
     ['credentials', undefined],
     ['cloud-connections', undefined],
+    ['app-setup', undefined],
     ['app-icon', t.appIcon],
     ['activity-count', t.activityCountSettings.title],
     ['chat-background', t.chatBackground.global],
@@ -197,7 +198,8 @@ function RootNavigator() {
                         ...(name === 'profile-name' ||
                         name === 'host-settings' ||
                         name === 'credentials' ||
-                        name === 'cloud-connections'
+                        name === 'cloud-connections' ||
+                        name === 'app-setup'
                           ? { headerShown: false }
                           : {}),
                         headerStyle: { backgroundColor: design.overlay.fill },

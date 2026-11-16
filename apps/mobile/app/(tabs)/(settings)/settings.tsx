@@ -63,6 +63,7 @@ export default function SettingsScreen() {
           onHostSettings: () => router.push('/settings/host-settings'),
           onCredentials: () => router.push('/settings/credentials'),
           onCloudConnections: () => router.push('/settings/cloud-connections'),
+          onAppSetup: () => router.push('/settings/app-setup'),
           onModels: () => router.push('/settings/models'),
           onCopyVersion: copyMessage,
         }}
