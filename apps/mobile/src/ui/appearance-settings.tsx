@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View } from 'react-native';
 
 import {
@@ -5,6 +6,7 @@ import {
   type Scheme,
   type ThemePreset,
   type ThemeStyle,
+  type WallpaperMedia,
 } from './appearance-model';
 import { SHEET_GROUP } from './chat/sheet';
 import { appearanceStore, type AppearanceSnapshot } from './native-appearance';
@@ -17,18 +19,43 @@ import { useStrings } from './strings';
 
 const STYLES: readonly ThemeStyle[] = ['default', 'glass', 'image'];
 
+/** Native wallpaper operations injected by the route, so this body stays free of native IO. */
+export type WallpaperPorts = {
+  pick(): Promise<WallpaperMedia | undefined>;
+};
+
 /** Theme settings screen body: preset selection per scheme, surface style, and the glass
  * toggle. Every change goes straight through the appearance store, so the whole app updates
  * live via useDesignTheme — this screen needs no separate preview state. */
-export function AppearanceSettingsContent({ snapshot }: { snapshot: AppearanceSnapshot }) {
+export function AppearanceSettingsContent({
+  snapshot,
+  wallpaper,
+}: {
+  snapshot: AppearanceSnapshot;
+  wallpaper: WallpaperPorts;
+}) {
   const copy = useStrings();
   const t = copy.themeSettings;
   const doc = snapshot.document;
   const interfaceCopy = copy.interfacePreferences;
+  const [importing, setImporting] = useState(false);
+  const [error, setError] = useState(false);
   const styleLabels: Record<ThemeStyle, string> = {
     default: interfaceCopy.system,
     glass: t.glass,
     image: copy.chatBackground.image,
+  };
+  const chooseWallpaper = () => {
+    if (importing) return;
+    setImporting(true);
+    setError(false);
+    void wallpaper
+      .pick()
+      .then((media) => {
+        if (media !== undefined) appearanceStore.setWallpaper(media);
+      })
+      .catch(() => setError(true))
+      .finally(() => setImporting(false));
   };
 
   return (
@@ -68,16 +95,41 @@ export function AppearanceSettingsContent({ snapshot }: { snapshot: AppearanceSn
           control={{
             kind: 'switch',
             value: doc.materialEnabled,
-            onChange: (enabled) => {
-              appearanceStore.setMaterialEnabled(enabled);
-              // Glass resolves only for the glass/image styles. If the user just opted in from
-              // the default style, move them to glass so the toggle takes effect immediately.
-              if (enabled && doc.style === 'default') appearanceStore.setStyle('glass');
-            },
+            // Atomic: one revision bump / one disk write; also moves default -> glass on opt-in.
+            onChange: (enabled) => appearanceStore.setGlass(enabled),
             disabled: !snapshot.loaded,
             testID: 'theme-glass-toggle',
           }}
         />
+      </SettingsSection>
+      <SettingsSection on={SHEET_GROUP} footer={t.wallpaperHint}>
+        <SettingsRow
+          on={SHEET_GROUP}
+          title={t.wallpaper}
+          icon="background"
+          control={{
+            kind: 'value',
+            text: doc.wallpaper === undefined ? copy.chatBackground.useDefault : t.chooseWallpaper,
+            chevron: true,
+          }}
+          onPress={chooseWallpaper}
+          testID="theme-wallpaper-choose"
+        />
+        {doc.wallpaper === undefined ? null : (
+          <SettingsRow
+            on={SHEET_GROUP}
+            title={t.clearWallpaper}
+            onPress={() => appearanceStore.setWallpaper(undefined)}
+            testID="theme-wallpaper-clear"
+          />
+        )}
+        {error ? (
+          <View style={{ padding: space.x5 }}>
+            <Text variant="meta" tone="danger">
+              {t.wallpaperImportFailed}
+            </Text>
+          </View>
+        ) : null}
       </SettingsSection>
       {snapshot.storageError ? (
         <SettingsSection on={SHEET_GROUP}>

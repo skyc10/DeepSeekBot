@@ -1,6 +1,7 @@
 import {
   coerceAppearanceDocument,
   defaultAppearanceDocument,
+  setGlass,
   setMaterialEnabled,
   setPreference,
   setPreset,
@@ -87,6 +88,9 @@ export function createAppearanceStore() {
     },
     setMaterialEnabled(enabled: boolean) {
       commit(setMaterialEnabled(document, enabled));
+    },
+    setGlass(enabled: boolean) {
+      commit(setGlass(document, enabled));
     },
     setPreset(scheme: Scheme, preset: ThemePreset) {
       commit(setPreset(document, scheme, preset));

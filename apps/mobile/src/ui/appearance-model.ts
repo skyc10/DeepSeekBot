@@ -191,6 +191,40 @@ export function paintSource(wallpaper: WallpaperMedia | undefined): string | und
   return wallpaper.posterId ?? wallpaper.id;
 }
 
+export type ResolvedWallpaper = {
+  /** Resolved file URI to paint, from the injected `imageUri` mapper. */
+  uri: string;
+  /** `video` means the still frame came from a video wallpaper (poster or first frame). */
+  kind: 'image' | 'video';
+  fit: 'cover' | 'contain';
+  x: number;
+  y: number;
+  fade: number;
+};
+
+/** Pure wallpaper source resolution. Given an appearance document and a function that maps a
+ * stored media id to a file URI, decide exactly what the full-screen background should paint.
+ * Covers every persisted shape: no/cleared wallpaper -> undefined; solid color -> undefined
+ * (the theme canvas paints it); image -> its own URI; video with a poster -> the poster URI;
+ * video without a poster -> the video id (a still frame / bundled thumbnail). No native calls,
+ * so it is fully unit-testable; native rendering stays in the app-wallpaper component. */
+export function resolveWallpaperSource(
+  doc: AppearanceDocument,
+  imageUri: (id: string) => string,
+): ResolvedWallpaper | undefined {
+  const wallpaper = doc.wallpaper;
+  if (wallpaper === undefined || wallpaper.kind === 'color') return undefined;
+  const id = wallpaper.kind === 'video' ? (wallpaper.posterId ?? wallpaper.id) : wallpaper.id;
+  return {
+    uri: imageUri(id),
+    kind: wallpaper.kind,
+    fit: wallpaper.fit,
+    x: wallpaper.x,
+    y: wallpaper.y,
+    fade: wallpaper.fade,
+  };
+}
+
 /** Whether glass surfaces should be synthesized for a platform. */
 export function usesGlass(doc: AppearanceDocument, os: PlatformOS): boolean {
   if (!doc.materialEnabled || (doc.style !== 'glass' && doc.style !== 'image')) return false;
@@ -208,6 +242,18 @@ export function setStyle(doc: AppearanceDocument, style: ThemeStyle): Appearance
 
 export function setMaterialEnabled(doc: AppearanceDocument, enabled: boolean): AppearanceDocument {
   return { ...doc, materialEnabled: enabled, revision: doc.revision + 1 };
+}
+
+/** Opt glass on/off in one atomic edit. Turning on from the default style also moves the style
+ * to `glass` so the material actually resolves; turning off restores the default style. One
+ * revision bump and one disk write, so a failed write cannot leave material/style out of sync. */
+export function setGlass(doc: AppearanceDocument, enabled: boolean): AppearanceDocument {
+  const style: ThemeStyle = enabled
+    ? doc.style === 'default'
+      ? 'glass'
+      : doc.style
+    : 'default';
+  return { ...doc, materialEnabled: enabled, style, revision: doc.revision + 1 };
 }
 
 export function setPreset(

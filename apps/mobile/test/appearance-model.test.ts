@@ -7,6 +7,8 @@ import {
   modeFor,
   paintSource,
   parseAppearanceDocument,
+  resolveWallpaperSource,
+  setGlass,
   setMaterialEnabled,
   setPreset,
   setStyle,
@@ -126,6 +128,125 @@ describe('appearance model - wallpaper media', () => {
   });
 });
 
+describe('resolveWallpaperSource - pure uri selection', () => {
+  // A fake id->uri mapper; no native module involved.
+  const uri = (id: string) => `file://wallpapers/${id}`;
+  const base = defaultAppearanceDocument();
+
+  it('returns undefined when there is no wallpaper (cleared / default)', () => {
+    expect(resolveWallpaperSource(base, uri)).toBeUndefined();
+    const withImage = setWallpaper(base, {
+      kind: 'image',
+      id: 'a.jpg',
+      fit: 'cover',
+      x: 0.5,
+      y: 0.5,
+      fade: 60,
+    });
+    const cleared = setWallpaper(withImage, undefined);
+    expect(resolveWallpaperSource(cleared, uri)).toBeUndefined();
+  });
+
+  it('returns undefined for a solid-color wallpaper (theme canvas paints it)', () => {
+    const doc = setWallpaper(base, { kind: 'color', color: '#101010' });
+    expect(resolveWallpaperSource(doc, uri)).toBeUndefined();
+  });
+
+  it('resolves an image wallpaper to its own uri with placement', () => {
+    const doc = setWallpaper(base, {
+      kind: 'image',
+      id: 'sunset.jpg',
+      fit: 'contain',
+      x: 0.3,
+      y: 0.7,
+      fade: 45,
+    });
+    expect(resolveWallpaperSource(doc, uri)).toEqual({
+      uri: 'file://wallpapers/sunset.jpg',
+      kind: 'image',
+      fit: 'contain',
+      x: 0.3,
+      y: 0.7,
+      fade: 45,
+    });
+  });
+
+  it('resolves a video wallpaper WITH a poster to the poster uri', () => {
+    const doc = setWallpaper(base, {
+      kind: 'video',
+      id: 'loop.mp4',
+      posterId: 'loop.jpg',
+      fit: 'cover',
+      x: 0.5,
+      y: 0.5,
+      fade: 60,
+    });
+    expect(resolveWallpaperSource(doc, uri)).toEqual({
+      uri: 'file://wallpapers/loop.jpg',
+      kind: 'video',
+      fit: 'cover',
+      x: 0.5,
+      y: 0.5,
+      fade: 60,
+    });
+  });
+
+  it('resolves a video wallpaper WITHOUT a poster to the video id uri', () => {
+    const doc = setWallpaper(base, {
+      kind: 'video',
+      id: 'loop.mp4',
+      fit: 'cover',
+      x: 0.5,
+      y: 0.5,
+      fade: 60,
+    });
+    expect(resolveWallpaperSource(doc, uri)).toEqual({
+      uri: 'file://wallpapers/loop.mp4',
+      kind: 'video',
+      fit: 'cover',
+      x: 0.5,
+      y: 0.5,
+      fade: 60,
+    });
+  });
+
+  it('is independent of light/dark preference (wallpaper is app-wide)', () => {
+    const withImage = setWallpaper(base, {
+      kind: 'image',
+      id: 'a.jpg',
+      fit: 'cover',
+      x: 0.5,
+      y: 0.5,
+      fade: 60,
+    });
+    const light = resolveWallpaperSource({ ...withImage, preference: 'light' }, uri);
+    const dark = resolveWallpaperSource({ ...withImage, preference: 'dark' }, uri);
+    expect(light).toEqual(dark);
+    expect(light?.uri).toBe('file://wallpapers/a.jpg');
+  });
+
+  it('reacts immediately to a wallpaper swap through a fresh document', () => {
+    const first = setWallpaper(base, {
+      kind: 'image',
+      id: 'a.jpg',
+      fit: 'cover',
+      x: 0.5,
+      y: 0.5,
+      fade: 60,
+    });
+    expect(resolveWallpaperSource(first, uri)?.uri).toBe('file://wallpapers/a.jpg');
+    const second = setWallpaper(first, {
+      kind: 'image',
+      id: 'b.jpg',
+      fit: 'cover',
+      x: 0.5,
+      y: 0.5,
+      fade: 60,
+    });
+    expect(resolveWallpaperSource(second, uri)?.uri).toBe('file://wallpapers/b.jpg');
+  });
+});
+
 describe('appearance model - edits and resolution', () => {
   it('every edit bumps revision exactly once', () => {
     let doc = defaultAppearanceDocument();
@@ -158,6 +279,27 @@ describe('appearance model - edits and resolution', () => {
     expect('wallpaper' in doc).toBe(false);
     expect(doc.wallpaper).toBeUndefined();
     expect(doc.revision).toBe(before + 1);
+  });
+
+  it('setGlass is atomic: one revision bump, opt-in moves default to glass', () => {
+    const base = defaultAppearanceDocument();
+    const on = setGlass(base, true);
+    expect(on.revision).toBe(base.revision + 1);
+    expect(on.materialEnabled).toBe(true);
+    expect(on.style).toBe('glass');
+
+    // Keeping a non-default style (image) when opting in.
+    const image = setStyle(base, 'image');
+    const onImage = setGlass(image, true);
+    expect(onImage.style).toBe('image');
+    expect(onImage.materialEnabled).toBe(true);
+    expect(onImage.revision).toBe(image.revision + 1);
+
+    // Opting out restores the default style in one edit.
+    const off = setGlass(onImage, false);
+    expect(off.revision).toBe(onImage.revision + 1);
+    expect(off.materialEnabled).toBe(false);
+    expect(off.style).toBe('default');
   });
 
   it('setPreset touches only one scheme', () => {
