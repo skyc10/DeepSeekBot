@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { useHostSession } from '../../host/host-session';
 import { SHEET_GROUP } from '../chat/sheet';
 import { Segmented } from '../primitives/segmented';
@@ -42,11 +44,17 @@ export function RouteSelector() {
     ? classifyRoute(currentPreference)
     : classifyRoute(currentRoute);
 
-  const handleChange = async (kind: RouteKind) => {
+  const [failed, setFailed] = useState(false);
+  const handleChange = (kind: RouteKind) => {
     const target = routes.find((r) => classifyRoute(r) === kind) ?? routes[0];
-    if (target && client?.setRoutePreference) {
-      await client.setRoutePreference(target);
-    }
+    const setter = client?.setRoutePreference;
+    if (target === undefined || setter === undefined) return;
+    // Keep the current selection on failure and surface a message instead of
+    // leaking an unhandled rejection from Segmented's void onChange.
+    void setter(target).then(
+      () => setFailed(false),
+      () => setFailed(true),
+    );
   };
 
   if (routes.length <= 1) return null;
@@ -54,19 +62,18 @@ export function RouteSelector() {
   return (
     <SettingsFormItem>
       <Segmented
-        label={t.routeSelector?.title ?? 'Route'}
+        label={t.routeSelector.title}
         options={[
-          { value: 'connect' as RouteKind, label: t.routeSelector?.connect ?? 'Connect' },
-          { value: 'tailscale' as RouteKind, label: t.routeSelector?.tailscale ?? 'Tailscale' },
-          { value: 'lan' as RouteKind, label: t.routeSelector?.lan ?? 'LAN' },
+          { value: 'connect' as RouteKind, label: t.routeSelector.connect },
+          { value: 'tailscale' as RouteKind, label: t.routeSelector.tailscale },
+          { value: 'lan' as RouteKind, label: t.routeSelector.lan },
         ]}
         value={currentKind}
         onChange={handleChange}
       />
+      {failed ? <Notice tone="danger">{t.routeSelector.failed}</Notice> : null}
       {client?.secretInputAllowed?.() === false ? null : (
-        <Notice tone="info">
-          {t.routeSelector?.hint ?? 'Switch to Tailscale or LAN for full settings access.'}
-        </Notice>
+        <Notice tone="warning">{t.routeSelector.hint}</Notice>
       )}
     </SettingsFormItem>
   );

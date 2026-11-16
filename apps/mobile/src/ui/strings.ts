@@ -198,6 +198,14 @@ const en = {
       'Saved on this phone. Message display applies to new replies; delivery status shows whether mentioned Bots received your message.',
     storageError: 'Could not save this choice. Try again.',
   },
+  routeSelector: {
+    title: 'Connection route',
+    connect: 'Connect',
+    tailscale: 'Tailscale',
+    lan: 'LAN',
+    hint: 'Switch to Tailscale or LAN for full settings access.',
+    failed: 'Could not switch the route. The previous selection is still active.',
+  },
   channelCreation: {
     chooseBots: 'Choose Bots',
     selected: (count: number) => `${count} selected`,
@@ -2776,6 +2784,14 @@ const zh: typeof en = {
     dark: '深色',
     local: '保存在这台手机上。消息显示对新回复生效；投递状态会在消息旁显示被 @ 的 Bot 是否收到。',
     storageError: '未能保存，再试一次。',
+  },
+  routeSelector: {
+    title: '连接路由',
+    connect: 'Connect',
+    tailscale: 'Tailscale',
+    lan: '局域网',
+    hint: '切换到 Tailscale 或局域网以获得完整设置访问权限。',
+    failed: '切换路由失败，仍保持原选择。',
   },
   channelCreation: {
     chooseBots: '选择 Bot',
