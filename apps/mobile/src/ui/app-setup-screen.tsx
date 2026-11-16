@@ -18,6 +18,7 @@ import {
 import type { HostClient } from '../host/host-settings';
 import { SHEET_GROUP } from './chat/sheet';
 import { space } from './design/tokens';
+import { confirmDestructive } from './primitives/app-dialog';
 import { Button } from './primitives/button';
 import { DrawerHeader } from './primitives/drawer-header';
 import { KeyboardFormScroll } from './primitives/keyboard-form';
@@ -115,6 +116,13 @@ export function AppSetupView({ port, onClose }: { port: AppSetupPort; onClose():
       working.current = false;
       setBusy(false);
     }
+  };
+
+  const cancelSetup = () => {
+    if (attempt === undefined || busy) return;
+    confirmDestructive(copy.cancelTitle, copy.cancelBody, copy.cancel, () => {
+      void run(() => port.cancel(attempt.attemptId));
+    });
   };
 
   const leave = () => {
@@ -254,7 +262,7 @@ export function AppSetupView({ port, onClose }: { port: AppSetupPort; onClose():
             testID="app-setup-cancel"
             tone="danger"
             disabled={busy}
-            onPress={() => void run(() => port.cancel(attempt.attemptId))}
+            onPress={cancelSetup}
           />
         ) : null}
         {['cancelled', 'expired', 'failed'].includes(attempt.state) ? (

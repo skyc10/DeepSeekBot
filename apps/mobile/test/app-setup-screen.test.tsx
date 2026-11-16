@@ -3,6 +3,11 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+const dialog = vi.hoisted(() => ({ confirmDestructive: vi.fn() }));
+vi.mock('../src/ui/primitives/app-dialog', () => ({
+  confirmDestructive: dialog.confirmDestructive,
+}));
+
 vi.mock('expo-symbols', () => ({ SymbolView: () => null }));
 vi.mock('expo-image', () => ({ Image: () => null }));
 vi.mock('../src/ui/primitives/row-icon', () => ({ RowIcon: () => null }));
@@ -33,6 +38,7 @@ afterEach(() => {
   host?.remove();
   root = undefined;
   host = undefined;
+  dialog.confirmDestructive.mockReset();
 });
 
 const button = (view: HTMLElement, label: string) =>
@@ -138,5 +144,50 @@ describe('IM app setup screen', () => {
     expect(view.querySelectorAll('textarea')[1].value).toBe('');
     expect(view.textContent).not.toContain('app-secret-rejected');
     expect(view.textContent).toContain('bad credentials');
+  });
+
+  it('cancels an attempt only through the standard destructive confirmation', async () => {
+    const setups = [
+      {
+        version: 1 as const,
+        platform: 'weixin' as const,
+        providerId: 'dsh-im/weixin',
+        endpoint: 'dsh-im/app-setup' as const,
+        kind: 'qr' as const,
+      },
+    ];
+    const pendingAttempt = {
+      version: 1 as const,
+      attemptId: 'att_9',
+      platform: 'weixin' as const,
+      state: 'pending' as const,
+      expiresAt: 1,
+    };
+    const cancel = vi.fn(async () => ({ kind: 'ok', attempt: pendingAttempt }) as AppSetupResult);
+    const port: AppSetupPort = {
+      setups: vi.fn(async () => ({ kind: 'ok', setups }) as AppSetupsResult),
+      start: vi.fn(async () => ({ kind: 'ok', attempt: pendingAttempt }) as AppSetupResult),
+      poll: vi.fn(),
+      cancel,
+      credentials: vi.fn(),
+      verify: vi.fn(),
+    };
+    const view = await render(port);
+    await act(async () =>
+      button(view, `${t.appSetup.platform('weixin')}, ${t.appSetup.kind('qr')}`).click(),
+    );
+
+    await act(async () => button(view, t.appSetup.cancel).click());
+    expect(cancel).not.toHaveBeenCalled();
+    expect(dialog.confirmDestructive).toHaveBeenCalledWith(
+      t.appSetup.cancelTitle,
+      t.appSetup.cancelBody,
+      t.appSetup.cancel,
+      expect.any(Function),
+    );
+    await act(async () => {
+      dialog.confirmDestructive.mock.calls[0]![3]();
+    });
+    expect(cancel).toHaveBeenCalledWith('att_9');
   });
 });

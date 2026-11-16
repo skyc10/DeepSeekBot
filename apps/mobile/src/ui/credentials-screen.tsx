@@ -11,6 +11,7 @@ import {
 } from '../host/host-credentials';
 import type { HostClient } from '../host/host-settings';
 import { space } from './design/tokens';
+import { confirmDestructive } from './primitives/app-dialog';
 import { Button } from './primitives/button';
 import { DrawerHeader } from './primitives/drawer-header';
 import { KeyboardFormScroll } from './primitives/keyboard-form';
@@ -42,7 +43,6 @@ export function CredentialsView({ port, onClose }: { port: CredentialsPort; onCl
   const [info, setInfo] = useState<CredentialInfo | undefined>(undefined);
   const [state, setState] = useState<WriteState>('idle');
   const [message, setMessage] = useState('');
-  const [confirmRemove, setConfirmRemove] = useState(false);
   const busy = useRef(false);
   const refValid = validCredentialRef(ref);
 
@@ -90,18 +90,12 @@ export function CredentialsView({ port, onClose }: { port: CredentialsPort; onCl
     }
   };
 
-  const remove = async () => {
-    if (!refValid || busy.current) return;
-    if (!confirmRemove) {
-      setConfirmRemove(true);
-      return;
-    }
+  const performRemove = async () => {
     busy.current = true;
     setState('saving');
     setMessage('');
     try {
       const result = await port.unset(ref);
-      setConfirmRemove(false);
       if (result.kind === 'removed') {
         setState('removed');
         await refresh();
@@ -116,6 +110,13 @@ export function CredentialsView({ port, onClose }: { port: CredentialsPort; onCl
     } finally {
       busy.current = false;
     }
+  };
+
+  const remove = () => {
+    if (!refValid || busy.current) return;
+    confirmDestructive(copy.removeTitle, copy.removeBody, copy.remove, () => {
+      void performRemove();
+    });
   };
 
   return (
@@ -212,11 +213,11 @@ export function CredentialsView({ port, onClose }: { port: CredentialsPort; onCl
         onPress={() => void save()}
       />
       <Button
-        label={confirmRemove ? copy.confirmRemove : copy.remove}
+        label={copy.remove}
         testID="credentials-remove"
         tone="danger"
         disabled={state === 'saving' || !refValid}
-        onPress={() => void remove()}
+        onPress={remove}
       />
     </KeyboardFormScroll>
   );

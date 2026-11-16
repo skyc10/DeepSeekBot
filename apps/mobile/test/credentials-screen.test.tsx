@@ -3,6 +3,11 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+const dialog = vi.hoisted(() => ({ confirmDestructive: vi.fn() }));
+vi.mock('../src/ui/primitives/app-dialog', () => ({
+  confirmDestructive: dialog.confirmDestructive,
+}));
+
 vi.mock('expo-symbols', () => ({ SymbolView: () => null }));
 vi.mock('../src/ui/primitives/row-icon', () => ({ RowIcon: () => null }));
 vi.mock('react-native-keyboard-controller', async () => import('./keyboard-controller-shim'));
@@ -32,6 +37,7 @@ afterEach(() => {
   host?.remove();
   root = undefined;
   host = undefined;
+  dialog.confirmDestructive.mockReset();
 });
 
 const button = (view: HTMLElement, label: string) =>
@@ -74,7 +80,7 @@ describe('Credentials screen is write-only', () => {
     expect(view.textContent).toContain('sk-•••42');
   });
 
-  it('requires two taps to remove and never sends a value', async () => {
+  it('removes only through the standard destructive confirmation', async () => {
     const unset = vi.fn(async () => ({ kind: 'removed' }) as CredentialWriteResult);
     const port: CredentialsPort = {
       describe: vi.fn(async () => ({})),
@@ -86,7 +92,15 @@ describe('Credentials screen is write-only', () => {
 
     await act(async () => button(view, t.credentials.remove).click());
     expect(unset).not.toHaveBeenCalled();
-    await act(async () => button(view, t.credentials.confirmRemove).click());
+    expect(dialog.confirmDestructive).toHaveBeenCalledWith(
+      t.credentials.removeTitle,
+      t.credentials.removeBody,
+      t.credentials.remove,
+      expect.any(Function),
+    );
+    await act(async () => {
+      dialog.confirmDestructive.mock.calls[0]![3]();
+    });
     expect(unset).toHaveBeenCalledWith('DEEPSEEK_API_KEY');
   });
 });
