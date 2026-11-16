@@ -15,6 +15,7 @@ export interface SettingsActions {
   onStorage(): void;
   onHostSettings(): void;
   onCredentials(): void;
+  onCloudConnections(): void;
   onModels(): void;
   onCopyVersion(text: string): void;
 }
@@ -95,6 +96,15 @@ export function SettingsView({
           disclosure
           testID="settings-credentials"
           onPress={actions.onCredentials}
+        />
+        <SettingsRow
+          on={SHEET_GROUP}
+          title={t.cloudConnections.title}
+          icon="lan"
+          detail={t.cloudConnections.hint}
+          disclosure
+          testID="settings-cloud-connections"
+          onPress={actions.onCloudConnections}
         />
       </SettingsSection>
       <SettingsSection title={t.interface} on={SHEET_GROUP} footer={t.interfacePreferences.local}>

@@ -67,6 +67,7 @@ function actions(overrides: Partial<SettingsActions> = {}): SettingsActions {
     onStorage: vi.fn(),
     onHostSettings: vi.fn(),
     onCredentials: vi.fn(),
+    onCloudConnections: vi.fn(),
     onModels: vi.fn(),
     onCopyVersion: vi.fn(),
     ...overrides,

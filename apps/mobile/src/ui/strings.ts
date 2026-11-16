@@ -888,6 +888,34 @@ const en = {
     rejected: 'The Host rejected this value. Check it and try again.',
     refused: 'This computer refused the change.',
   },
+  cloudConnections: {
+    title: 'Cloud connections',
+    hint: 'Cloud Agents connected to this computer',
+    loading: 'Loading connections…',
+    loadFailed: 'Could not load connections.',
+    empty: 'No cloud connections yet.',
+    active: 'Active',
+    inactive: 'Inactive',
+    reload: 'Reload',
+    import: 'Import credential',
+    importHint:
+      'Paste a Cloud Agent credential. Importing makes that connection active on this computer.',
+    switchTo: (name: string) => `Switch to ${name}`,
+    credential: 'Credential JSON',
+    credentialPlaceholder: 'Paste the credential JSON',
+    reveal: 'Show credential',
+    hide: 'Hide credential',
+    invalid: (reason: 'json' | 'shape' | 'large') =>
+      reason === 'json'
+        ? 'Enter valid JSON.'
+        : reason === 'large'
+          ? 'This credential is too large.'
+          : 'This is not a valid Cloud Agent credential.',
+    imported: 'Credential imported. This connection is now active.',
+    saveFailed: 'Could not import. Try again.',
+    rejected: 'The Host rejected this credential. Check it and try again.',
+    refused: 'This computer refused the change.',
+  },
   activityCountSettings: {
     title: 'Activity count',
     hint: 'Choose what the badge number counts. This phone only.',
@@ -3438,6 +3466,33 @@ const zh: typeof en = {
     confirmRemove: '确认删除',
     removed: '密钥已删除。',
     rejected: '这台电脑拒绝了该值，请检查后重试。',
+    refused: '这台电脑拒绝了该修改。',
+  },
+  cloudConnections: {
+    title: '云连接',
+    hint: '连接到这台电脑的云 Agent',
+    loading: '正在加载连接…',
+    loadFailed: '无法加载连接。',
+    empty: '还没有云连接。',
+    active: '已启用',
+    inactive: '未启用',
+    reload: '重新加载',
+    import: '导入凭据',
+    importHint: '粘贴云 Agent 凭据。导入后该连接会在这台电脑上启用。',
+    switchTo: (name: string) => `切换到 ${name}`,
+    credential: '凭据 JSON',
+    credentialPlaceholder: '粘贴凭据 JSON',
+    reveal: '显示凭据',
+    hide: '隐藏凭据',
+    invalid: (reason: 'json' | 'shape' | 'large') =>
+      reason === 'json'
+        ? '请输入合法的 JSON。'
+        : reason === 'large'
+          ? '这份凭据太大。'
+          : '这不是有效的云 Agent 凭据。',
+    imported: '凭据已导入，该连接现已启用。',
+    saveFailed: '导入失败，再试一次。',
+    rejected: '这台电脑拒绝了该凭据，请检查后重试。',
     refused: '这台电脑拒绝了该修改。',
   },
   activityCountSettings: {
