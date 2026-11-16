@@ -54,25 +54,9 @@ async function saveJpeg(
   }
 }
 
-async function saveVideo(uri: string): Promise<string> {
-  const dir = mediaDir();
-  if (!dir.exists) dir.create({ intermediates: true });
-  const id = nextId('mp4');
-  const target = new File(dir, id);
-  try {
-    await new File(uri).copy(target);
-    if (!target.exists || target.size === 0 || target.size > 64 * 1024 * 1024)
-      throw Error('wallpaper-copy-failed');
-    return id;
-  } catch (error) {
-    if (target.exists) target.delete();
-    throw error;
-  }
-}
-
 export type PickedWallpaper =
   | { kind: 'image'; uri: string; width: number; height: number }
-  | { kind: 'video'; uri: string; thumbnail?: string };
+  | { kind: 'video-unavailable' };
 
 export async function pickWallpaper(): Promise<PickedWallpaper | undefined> {
   const result = await ImagePicker.launchImageLibraryAsync({
@@ -82,12 +66,7 @@ export async function pickWallpaper(): Promise<PickedWallpaper | undefined> {
   const asset = result.canceled ? undefined : result.assets[0];
   if (asset === undefined) return undefined;
   if (asset.type === 'video') {
-    if (asset.uri.length === 0) return undefined;
-    return {
-      kind: 'video',
-      uri: asset.uri,
-      ...(asset.thumbnail ? { thumbnail: asset.thumbnail } : {}),
-    };
+    return { kind: 'video-unavailable' };
   }
   if (
     !Number.isSafeInteger(asset.width) ||
@@ -107,21 +86,6 @@ export async function importWallpaperImage(source: {
   height: number;
 }): Promise<string> {
   return (await saveJpeg(source.uri, { width: source.width, height: source.height })).id;
-}
-
-export async function importWallpaperVideo(source: {
-  uri: string;
-  thumbnail?: string;
-}): Promise<{ id: string; posterId: string }> {
-  const posterSource = source.thumbnail ?? source.uri;
-  const poster = await saveJpeg(posterSource);
-  try {
-    const id = await saveVideo(source.uri);
-    return { id, posterId: poster.id };
-  } catch (error) {
-    removeWallpaperMedia(poster.id);
-    throw error;
-  }
 }
 
 export function removeWallpaperMedia(id: string): void {

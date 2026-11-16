@@ -20,8 +20,10 @@ import { useStrings } from './strings';
 
 const STYLES: readonly ThemeStyle[] = ['default', 'glass', 'image'];
 
+export type PickResult = WallpaperMedia | 'video-unavailable' | undefined;
+
 export type WallpaperPorts = {
-  pick(): Promise<WallpaperMedia | undefined>;
+  pick(): Promise<PickResult>;
 };
 
 export function AppearanceSettingsContent({
@@ -37,6 +39,7 @@ export function AppearanceSettingsContent({
   const interfaceCopy = copy.interfacePreferences;
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState(false);
+  const [videoUnavailable, setVideoUnavailable] = useState(false);
   const styleLabels: Record<ThemeStyle, string> = {
     default: interfaceCopy.system,
     glass: t.glass,
@@ -46,10 +49,12 @@ export function AppearanceSettingsContent({
     if (importing) return;
     setImporting(true);
     setError(false);
+    setVideoUnavailable(false);
     void wallpaper
       .pick()
-      .then((media) => {
-        if (media !== undefined) appearanceStore.setWallpaper(media);
+      .then((result) => {
+        if (result === 'video-unavailable') setVideoUnavailable(true);
+        else if (result !== undefined) appearanceStore.setWallpaper(result);
       })
       .catch(() => setError(true))
       .finally(() => setImporting(false));
@@ -114,6 +119,13 @@ export function AppearanceSettingsContent({
             testID="theme-wallpaper-clear"
           />
         )}
+        {videoUnavailable ? (
+          <View style={{ padding: space.x5 }}>
+            <Text variant="meta" tone="warning" testID="theme-wallpaper-video-unavailable">
+              {t.wallpaperVideoUnavailable}
+            </Text>
+          </View>
+        ) : null}
         {error ? (
           <View style={{ padding: space.x5, gap: space.x2 }}>
             <Text variant="meta" tone="danger">
