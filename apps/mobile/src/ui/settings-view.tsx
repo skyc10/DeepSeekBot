@@ -14,6 +14,7 @@ export interface SettingsActions {
   onNotifications(): void;
   onStorage(): void;
   onHostSettings(): void;
+  onCredentials(): void;
   onModels(): void;
   onCopyVersion(text: string): void;
 }
@@ -85,6 +86,15 @@ export function SettingsView({
           disclosure
           testID="settings-host-settings"
           onPress={actions.onHostSettings}
+        />
+        <SettingsRow
+          on={SHEET_GROUP}
+          title={t.credentials.title}
+          icon="access"
+          detail={t.credentials.hint}
+          disclosure
+          testID="settings-credentials"
+          onPress={actions.onCredentials}
         />
       </SettingsSection>
       <SettingsSection title={t.interface} on={SHEET_GROUP} footer={t.interfacePreferences.local}>
