@@ -950,6 +950,7 @@ const en = {
     readyDetail: (ref: string, connected: boolean) =>
       `Account ${ref} ${connected ? 'is connected' : 'is ready'}.`,
     saved: 'Submitted.',
+    saveFailed: 'Could not complete this step. Try again.',
     rejected: 'The Provider rejected this step. Check it and try again.',
     refused: 'This computer refused the change.',
   },
@@ -3566,6 +3567,7 @@ const zh: typeof en = {
     readyDetail: (ref: string, connected: boolean) =>
       `账号 ${ref} ${connected ? '已连接' : '已就绪'}。`,
     saved: '已提交。',
+    saveFailed: '这一步未完成，再试一次。',
     rejected: 'Provider 拒绝了这一步，请检查后重试。',
     refused: '这台电脑拒绝了该修改。',
   },

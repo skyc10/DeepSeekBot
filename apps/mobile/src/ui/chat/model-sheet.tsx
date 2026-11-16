@@ -172,15 +172,16 @@ export function ModelSheet({
               {t.modelSettings.catalogDebug(
                 value.models.length,
                 modelSourceText(lastSource),
-                model.status === 'failed' ? t.modelFailed : '',
+                error ?? '',
               )}
             </Text>
             {listState === 'empty' || listState === 'single' ? (
               <SheetCallout tone="warning">
-                {listState === 'empty' ? t.modelSettings.noModels : t.modelSettings.onlyDefault}
-                {modelSourceText(lastSource) === ''
-                  ? ''
-                  : `\n${t.modelSettings.listSource(modelSourceText(lastSource))}`}
+                {`${listState === 'empty' ? t.modelSettings.noModels : t.modelSettings.onlyDefault}${
+                  modelSourceText(lastSource) === ''
+                    ? ''
+                    : `\n${t.modelSettings.listSource(modelSourceText(lastSource))}`
+                }`}
               </SheetCallout>
             ) : null}
             {value.repair !== undefined ? (

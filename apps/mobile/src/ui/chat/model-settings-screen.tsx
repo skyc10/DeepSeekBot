@@ -249,12 +249,11 @@ function ModelsView({
       listState === 'empty' || listState === 'single' ? (
         <View style={{ gap: space.x3, paddingHorizontal: space.x5 }}>
           <SheetCallout tone="warning">
-            {listState === 'empty'
-              ? t.modelSettings.noModels
-              : t.modelSettings.onlyDefault}
-            {modelSourceText(lastSource) === ''
-              ? ''
-              : `\n${t.modelSettings.listSource(modelSourceText(lastSource))}`}
+            {`${listState === 'empty' ? t.modelSettings.noModels : t.modelSettings.onlyDefault}${
+              modelSourceText(lastSource) === ''
+                ? ''
+                : `\n${t.modelSettings.listSource(modelSourceText(lastSource))}`
+            }`}
           </SheetCallout>
           <Button label={t.retry} onPress={models.refresh} disabled={models.busy} />
         </View>
