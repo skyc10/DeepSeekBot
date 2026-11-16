@@ -85,13 +85,8 @@ export function AppSetupView({ port, onClose }: { port: AppSetupPort; onClose():
     void reload();
   }, [reload]);
 
-  const apply = (result: AppSetupResult, clearSecrets = false): boolean => {
+  const apply = (result: AppSetupResult): boolean => {
     if (result.kind === 'ok') {
-      if (clearSecrets) {
-        setAppSecret('');
-        setVerifyCode('');
-        setRevealed(false);
-      }
       setAttempt(result.attempt);
       setMessage('');
       return true;
@@ -107,7 +102,15 @@ export function AppSetupView({ port, onClose }: { port: AppSetupPort; onClose():
     working.current = true;
     setBusy(true);
     try {
-      apply(await work(), clearSecrets);
+      const result = await work();
+      // Secrets are dropped from memory after the write settles, whatever the
+      // outcome. A rejected attempt must not leave the value on screen.
+      if (clearSecrets) {
+        setAppSecret('');
+        setVerifyCode('');
+        setRevealed(false);
+      }
+      apply(result);
     } finally {
       working.current = false;
       setBusy(false);

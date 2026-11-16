@@ -96,4 +96,47 @@ describe('IM app setup screen', () => {
     expect(view.querySelectorAll('textarea')[1].value).toBe('');
     expect(view.textContent).not.toContain('app-secret-value');
   });
+
+  it('clears the secret on a rejected submit too', async () => {
+    const setups = [
+      {
+        version: 1 as const,
+        platform: 'feishu' as const,
+        providerId: 'dsh-im/feishu',
+        endpoint: 'dsh-im/app-setup' as const,
+        kind: 'credentials' as const,
+      },
+    ];
+    const credentialsAttempt = {
+      version: 1 as const,
+      attemptId: 'att_1',
+      platform: 'feishu' as const,
+      state: 'credentials' as const,
+      expiresAt: 1,
+    };
+    const credentials = vi.fn(
+      async () => ({ kind: 'rejected', message: 'bad credentials' }) as AppSetupResult,
+    );
+    const port: AppSetupPort = {
+      setups: vi.fn(async () => ({ kind: 'ok', setups }) as AppSetupsResult),
+      start: vi.fn(async () => ({ kind: 'ok', attempt: credentialsAttempt }) as AppSetupResult),
+      poll: vi.fn(),
+      cancel: vi.fn(),
+      credentials,
+      verify: vi.fn(),
+    };
+    const view = await render(port);
+    await act(async () =>
+      button(view, `${t.appSetup.platform('feishu')}, ${t.appSetup.kind('credentials')}`).click(),
+    );
+    const fields = view.querySelectorAll('textarea');
+    await act(async () => type(fields[0], 'cli_app'));
+    await act(async () => type(fields[1], 'app-secret-rejected'));
+    await act(async () => button(view, t.appSetup.submitCredentials).click());
+
+    expect(credentials).toHaveBeenCalledWith('att_1', 'cli_app', 'app-secret-rejected', 'feishu');
+    expect(view.querySelectorAll('textarea')[1].value).toBe('');
+    expect(view.textContent).not.toContain('app-secret-rejected');
+    expect(view.textContent).toContain('bad credentials');
+  });
 });
