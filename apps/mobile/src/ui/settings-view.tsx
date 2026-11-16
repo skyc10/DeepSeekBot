@@ -27,6 +27,7 @@ export function SettingsView({
   sendJump,
   activityCount,
   chatBackground,
+  routeSelector,
   hapticFeedback,
   deliveryReceipts,
 }: {
@@ -39,6 +40,7 @@ export function SettingsView({
   sendJump?: ReactNode;
   activityCount?: ReactNode;
   chatBackground?: ReactNode;
+  routeSelector?: ReactNode;
   hapticFeedback?: ReactNode;
   deliveryReceipts?: ReactNode;
 }) {
@@ -47,6 +49,7 @@ export function SettingsView({
   return (
     <SettingsForm>
       {profile}
+      {routeSelector}
       <SettingsFormItem>
         <UsageCard load={loadUsage} on={SHEET_GROUP} onOpen={actions.onUsage} />
       </SettingsFormItem>
