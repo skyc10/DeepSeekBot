@@ -45,7 +45,6 @@ import {
   type AttachmentRef,
   type AggregatedState,
   type ChannelListItem,
-  type ClientRequest,
   type MuxClientFrame,
   type MuxServerFrame,
   type PersonaBotSummary,
@@ -725,11 +724,12 @@ export function createHostClient(options: HostClientOptions): HostClient {
           : undefined;
       if (refusal !== undefined) throw new MethodRefused(refusal.code, refusal.message);
       const raw = callOptions?.raw === true || name.startsWith('dsh-im/');
-      const request: ClientRequest = {
+      const payload: Record<string, unknown> = raw ? args : { args };
+      const request = {
         type: 'client-request',
         rpcId: id(),
         method: name,
-        payload: raw ? args : { args },
+        payload,
       };
       const response = await carrier.request(`${via}${DEVICE_PREFIX}/api/${name}`, {
         method: 'POST',
