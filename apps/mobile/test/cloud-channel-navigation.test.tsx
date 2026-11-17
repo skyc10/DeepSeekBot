@@ -36,7 +36,6 @@ vi.mock('expo-router', async () => {
   return {
     router: { push: () => {} },
     useNavigationContainerRef: () => navigation,
-    useFocusEffect: (callback: () => void) => useEffect(callback, [callback]),
     useLocalSearchParams: () => state.routes[state.index]?.params ?? {},
   };
 });
