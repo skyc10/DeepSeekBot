@@ -1,0 +1,49 @@
+name: stability-tmp
+on:
+  push:
+    branches: [stability-tmp]
+permissions:
+  contents: read
+jobs:
+  stability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 18cd53da66eafa62cc26710fee9659e6cf8d1e1a
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: RELEASE run 1
+        run: pnpm typecheck 2>&1 | tee /tmp/r1.txt || true
+      - name: RELEASE run 2
+        run: pnpm typecheck 2>&1 | tee /tmp/r2.txt || true
+      - name: Collect release sets
+        run: |
+          for n in 1 2; do
+            grep -oE 'error TS[0-9]+: .*' /tmp/r$n.txt | sed -E 's/\([0-9]+,[0-9]+\)//' | sort -u > /tmp/r$n.set || true
+            echo "RELEASE_RUN_${n}_ERRORS=$(wc -l < /tmp/r$n.set)"
+          done
+          echo "RELEASE_RUN1_vs_RUN2_DIFF=$(diff /tmp/r1.set /tmp/r2.set | wc -l)"
+      - name: Checkout baseline
+        run: |
+          git fetch --no-tags --depth=1 origin 6c2be1710d753c29cf8e4d244683add8b5fd8719
+          git checkout -q 6c2be1710d753c29cf8e4d244683add8b5fd8719
+          pnpm install --frozen-lockfile
+      - name: BASELINE run 1
+        run: pnpm typecheck 2>&1 | tee /tmp/b1.txt || true
+      - name: BASELINE run 2
+        run: pnpm typecheck 2>&1 | tee /tmp/b2.txt || true
+      - name: Collect baseline sets + final diff
+        run: |
+          for n in 1 2; do
+            grep -oE 'error TS[0-9]+: .*' /tmp/b$n.txt | sed -E 's/\([0-9]+,[0-9]+\)//' | sort -u > /tmp/b$n.set || true
+            echo "BASELINE_RUN_${n}_ERRORS=$(wc -l < /tmp/b$n.set)"
+          done
+          echo "BASELINE_RUN1_vs_RUN2_DIFF=$(diff /tmp/b1.set /tmp/b2.set | wc -l)"
+          echo "NEW_R1_minus_B1=$(comm -23 /tmp/r1.set /tmp/b1.set | wc -l)"
+          echo "NEW_R2_minus_B2=$(comm -23 /tmp/r2.set /tmp/b2.set | wc -l)"
