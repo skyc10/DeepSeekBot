@@ -27,6 +27,7 @@ vi.mock('expo-router', async () => {
   return {
     router: { push: vi.fn() },
     useNavigationContainerRef: () => navigation,
+    useFocusEffect: (callback: () => void) => useEffect(callback, [callback]),
     useLocalSearchParams: () => {
       const current = useSyncExternalStore((listener) => {
         routeListeners.add(listener);
