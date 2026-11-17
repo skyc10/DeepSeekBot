@@ -1,0 +1,49 @@
+name: abtest-tmp
+on:
+  push:
+    branches: [abtest-tmp]
+permissions:
+  contents: read
+jobs:
+  upstream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: BotHarness/DeepSeekBot
+          ref: 6c2be1710d753c29cf8e4d244683add8b5fd8719
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: typecheck upstream fresh
+        run: pnpm typecheck 2>&1 | tee /tmp/up.txt || true
+      - name: count
+        run: |
+          grep -oE 'error TS[0-9]+: .*' /tmp/up.txt | sed -E 's/\([0-9]+,[0-9]+\)//' | sort -u > /tmp/up.set || true
+          echo "UPSTREAM_FRESH_ERRORS=$(wc -l < /tmp/up.set)"
+          head -5 /tmp/up.set
+          cp /tmp/up.set "${RUNNER_TEMP}/up.set"
+      - uses: actions/upload-artifact@v4
+        with: { name: upset, path: /tmp/up.set }
+  prunified:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 18cd53da66eafa62cc26710fee9659e6cf8d1e1a
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: typecheck pr-unified fresh
+        run: pnpm typecheck 2>&1 | tee /tmp/pr.txt || true
+      - name: count
+        run: |
+          grep -oE 'error TS[0-9]+: .*' /tmp/pr.txt | sed -E 's/\([0-9]+,[0-9]+\)//' | sort -u > /tmp/pr.set || true
+          echo "PR_FRESH_ERRORS=$(wc -l < /tmp/pr.set)"
+          head -5 /tmp/pr.set
+      - uses: actions/upload-artifact@v4
+        with: { name: prset, path: /tmp/pr.set }
