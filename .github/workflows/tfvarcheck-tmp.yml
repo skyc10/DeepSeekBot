@@ -1,0 +1,22 @@
+name: tfvarcheck-tmp
+on:
+  push:
+    branches: [tfvar]
+permissions: { contents: read }
+jobs:
+  roottsc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: root tsc (19 tests reverted)
+        run: npx tsc --noEmit 2>&1 | tee /tmp/v.txt || true
+      - name: count
+        run: |
+          grep -oE 'error TS[0-9]+: .*' /tmp/v.txt | sed -E 's/\([0-9]+,[0-9]+\)//' | sort -u > /tmp/v.set || true
+          echo "REVERTED_19_TESTS_ROOT_ERRORS=$(wc -l < /tmp/v.set)"
+          head -5 /tmp/v.set
