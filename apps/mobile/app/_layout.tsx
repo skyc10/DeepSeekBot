@@ -108,6 +108,9 @@ function RootNavigator() {
     ['about', t.settingsHome.about],
     ['model-runtime', t.settingsHome.models],
     ['advanced', t.settingsHome.advanced],
+    ['general', t.settingsHome.general],
+    ['auto-approval', t.settingsHome.autoApproval],
+    ['messaging', t.settingsHome.messaging],
   ];
   const profileListeners = swipeEntryListeners(
     profileScreenOptions(design, reducedMotion).animation,

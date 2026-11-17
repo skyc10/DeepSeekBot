@@ -41,13 +41,13 @@ export const SETTINGS_GROUPS: readonly SettingsGroupKey[] = [
 
 export const SETTINGS_CATALOG: readonly SettingsCatalogEntry[] = [
   { id: 'account', label: 'account', group: 'identity', icon: 'account', status: 'ready', route: '/settings/profile' },
-  { id: 'general', label: 'general', group: 'identity', icon: 'system', status: 'soon' },
+  { id: 'general', label: 'general', group: 'identity', icon: 'system', status: 'ready', route: '/settings/general' },
   { id: 'appearance', label: 'appearance', group: 'identity', icon: 'appearance', status: 'ready', route: '/settings/appearance' },
   { id: 'models', label: 'models', group: 'agent', icon: 'model', status: 'ready', route: '/settings/model-runtime' },
-  { id: 'autoApproval', label: 'autoApproval', group: 'agent', icon: 'rules', status: 'soon' },
+  { id: 'autoApproval', label: 'autoApproval', group: 'agent', icon: 'rules', status: 'ready', route: '/settings/auto-approval' },
   { id: 'prompts', label: 'prompts', group: 'agent', icon: 'messageDisplay', status: 'desktop' },
   { id: 'voice', label: 'voice', group: 'agent', icon: 'haptics', status: 'desktop' },
-  { id: 'messaging', label: 'messaging', group: 'agent', icon: 'streaming', status: 'soon' },
+  { id: 'messaging', label: 'messaging', group: 'agent', icon: 'streaming', status: 'ready', route: '/settings/messaging' },
   { id: 'notifications', label: 'notifications', group: 'capability', icon: 'notifications', status: 'ready', route: '/settings/notifications' },
   { id: 'shortcuts', label: 'shortcuts', group: 'capability', icon: 'system', status: 'desktop' },
   { id: 'imApps', label: 'imApps', group: 'capability', icon: 'qr', status: 'ready', route: '/settings/app-setup' },

@@ -40,12 +40,15 @@ describe('settings home catalog', () => {
     }
   });
 
-  it('marks only first-batch entries as ready with routes', () => {
+  it('marks all implemented entries as ready with routes', () => {
     const ready = SETTINGS_CATALOG.filter((entry) => entry.status === 'ready');
     expect(ready.map((entry) => entry.id)).toEqual([
       'account',
+      'general',
       'appearance',
       'models',
+      'autoApproval',
+      'messaging',
       'notifications',
       'imApps',
       'computerControl',
@@ -73,6 +76,7 @@ describe('settings home catalog', () => {
       'companion',
       'plugins',
     ]);
+    expect(SETTINGS_CATALOG.filter((entry) => entry.status === 'soon')).toHaveLength(0);
     expect(desktop.every((entry) => entry.route === undefined)).toBe(true);
   });
 
