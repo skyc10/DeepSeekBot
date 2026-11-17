@@ -1,0 +1,40 @@
+name: finalgate2-tmp
+on:
+  push:
+    branches: [finalgate2-tmp]
+permissions: { contents: read }
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: 6a0e8bc5f52ec6f5dd3571eea58dbc8539c09331 }
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: FULL typecheck RELEASE
+        run: pnpm typecheck 2>&1 | tee /tmp/rel.txt || true
+      - name: collect release
+        run: |
+          echo "root_tsc_ran=$(grep -c 'tsc --noEmit' /tmp/rel.txt)"
+          echo "mobile_tsc_ran=$(grep -c 'tsc --noEmit -p' /tmp/rel.txt)"
+          grep -oE 'error TS[0-9]+: .*' /tmp/rel.txt | sed -E 's/\([0-9]+,[0-9]+\)//' | sort -u > /tmp/rel.set || true
+          echo "RELEASE_TOTAL=$(wc -l < /tmp/rel.set)"
+      - name: baseline
+        run: |
+          git fetch --no-tags --depth=1 origin 6c2be1710d753c29cf8e4d244683add8b5fd8719
+          git checkout -q 6c2be1710d753c29cf8e4d244683add8b5fd8719
+          pnpm install --frozen-lockfile
+      - name: FULL typecheck BASELINE
+        run: pnpm typecheck 2>&1 | tee /tmp/base.txt || true
+      - name: combined diff
+        run: |
+          echo "baseline_root=$(grep -c 'tsc --noEmit' /tmp/base.txt) baseline_mobile=$(grep -c 'tsc --noEmit -p' /tmp/base.txt)"
+          grep -oE 'error TS[0-9]+: .*' /tmp/base.txt | sed -E 's/\([0-9]+,[0-9]+\)//' | sort -u > /tmp/base.set || true
+          echo "BASELINE_TOTAL=$(wc -l < /tmp/base.set)"
+          echo "=== NEW (root+mobile combined) ==="
+          comm -23 /tmp/rel.set /tmp/base.set | tee /tmp/new.set
+          echo "NEW_TOTAL=$(wc -l < /tmp/new.set)"
+          test ! -s /tmp/new.set
