@@ -87,8 +87,7 @@ describe('required CI aggregate', () => {
     expect(step.run).toBe('node scripts/ci-affected.mjs --run');
     const fallback = step.env.TEST_FILES.match(/\|\| '([^']+)'/)[1];
     expect(JSON.parse(fallback).include[0].files).toEqual([]);
-    expect(workflow.jobs['test-affected'].if).toContain("needs.plan.outputs.shards == '3'");
-    expect(workflow.jobs['test-affected'].if).toContain("github.event_name != 'push'");
+    expect(workflow.jobs['test-affected'].if).toBe("needs.plan.outputs.shards == '3'");
   });
 
   it('rejects a missing or malformed plan', () => {
