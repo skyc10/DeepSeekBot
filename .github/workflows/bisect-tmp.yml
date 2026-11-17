@@ -1,0 +1,50 @@
+name: bisect-tmp
+on:
+  push:
+    branches: [bisect-tmp]
+permissions: { contents: read }
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [full, no_new_tests, no_packages_src, no_apps_mobile]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 18cd53da66eafa62cc26710fee9659e6cf8d1e1a
+      - name: Apply variant
+        shell: bash
+        run: |
+          git fetch --no-tags --depth=1 origin 6c2be1710d753c29cf8e4d244683add8b5fd8719
+          case "${{ matrix.variant }}" in
+            full) echo "no changes";;
+            no_new_tests)
+              for f in $(git diff --name-only 6c2be171 HEAD | grep '^apps/mobile/test/'); do
+                if ! git cat-file -e 6c2be171:$f 2>/dev/null; then rm -f "$f"; fi
+              done
+              ;;
+            no_packages_src)
+              for f in $(git diff --name-only 6c2be171 HEAD | grep '^packages/.*\.\(ts\|tsx\)$'); do
+                git checkout 6c2be171 -- "$f" 2>/dev/null || rm -f "$f"
+              done
+              ;;
+            no_apps_mobile)
+              for f in $(git diff --name-only 6c2be171 HEAD | grep '^apps/mobile/'); do
+                git checkout 6c2be171 -- "$f" 2>/dev/null || rm -f "$f"
+              done
+              ;;
+          esac
+          echo "changed after variant: $(git status --short | wc -l)"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: root tsc
+        run: npx tsc --noEmit 2>&1 | tee /tmp/o.txt || true
+      - name: count
+        run: |
+          grep -oE 'error TS[0-9]+: .*' /tmp/o.txt | sed -E 's/\([0-9]+,[0-9]+\)//' | sort -u > /tmp/o.set || true
+          echo "ROOT_ERRORS[${{ matrix.variant }}]=$(wc -l < /tmp/o.set)"
