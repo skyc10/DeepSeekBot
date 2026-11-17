@@ -723,6 +723,11 @@ const en = {
     rename: 'Save preset name',
     saved: 'Preset saved',
     count: (count: number) => `${count} models`,
+    noModels: 'No models were returned. Retry or check the model catalog on this computer.',
+    onlyDefault: 'Only one model was returned. More models may not have loaded. Retry.',
+    listSource: (source: string) => `Source: ${source}`,
+    catalogDebug: (count: number, source: string, error: string) =>
+      `catalog: ${count} · source: ${source}${error === '' ? '' : ` · error: ${error}`}`,
   },
   storage: {
     title: 'Storage',
@@ -3366,6 +3371,11 @@ const zh: typeof en = {
     rename: '保存预设名称',
     saved: '预设已保存',
     count: (count: number) => `${count} 个模型`,
+    noModels: '未获取到可用模型。请重试，或检查这台电脑的模型目录。',
+    onlyDefault: '只获取到 1 个模型，可能还有更多模型未加载。请重试。',
+    listSource: (source: string) => `来源：${source}`,
+    catalogDebug: (count: number, source: string, error: string) =>
+      `catalog：${count} 项 · source：${source}${error === '' ? '' : ` · error：${error}`}`,
   },
   storage: {
     title: '存储空间',
