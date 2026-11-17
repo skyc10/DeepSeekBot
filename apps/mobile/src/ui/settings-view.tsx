@@ -30,6 +30,7 @@ export function SettingsView({
   messageDisplay,
   sendJump,
   activityCount,
+  theme,
   chatBackground,
   routeSelector,
   hapticFeedback,
@@ -43,6 +44,7 @@ export function SettingsView({
   messageDisplay?: ReactNode;
   sendJump?: ReactNode;
   activityCount?: ReactNode;
+  theme?: ReactNode;
   chatBackground?: ReactNode;
   routeSelector?: ReactNode;
   hapticFeedback?: ReactNode;
@@ -133,6 +135,7 @@ export function SettingsView({
           onPress={actions.onAppIcon}
         />
         {activityCount}
+        {theme}
         {chatBackground}
         {hapticFeedback}
         {deliveryReceipts}

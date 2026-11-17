@@ -43,6 +43,7 @@ import { nativeHostStoreOpener } from '../src/host/native-local-store';
 import { nativePurgeTargets } from '../src/host/native-purge-targets';
 import { nativeBackgroundCatchUp } from '../src/host/native-background-support';
 import { HostAccentProvider } from '../src/ui/shell/host-accent-provider';
+import { AppWallpaper, useWallpaperActive } from '../src/ui/app-wallpaper';
 import { useDesignTheme } from '../src/ui/design/theme';
 import { useStrings } from '../src/ui/strings';
 import { useTheme } from '../src/ui/theme';
@@ -77,6 +78,7 @@ function RootNavigator() {
   const t = useStrings();
   const theme = useTheme();
   const design = useDesignTheme();
+  const wallpaperActive = useWallpaperActive();
   const reducedMotion = useSystemReducedMotion();
   const [routingPending, setRoutingPending] = useState(false);
   const routing = usePushRouting(setRoutingPending, hostDrawer.captureChosenWorkspace);
@@ -98,6 +100,7 @@ function RootNavigator() {
     ['app-setup', undefined],
     ['app-icon', t.appIcon],
     ['activity-count', t.activityCountSettings.title],
+    ['appearance', t.themeSettings.title],
     ['chat-background', t.chatBackground.global],
   ];
   const profileListeners = swipeEntryListeners(
@@ -124,6 +127,7 @@ function RootNavigator() {
               </SafeAreaView>
             ) : null}
             <View ref={stack} testID="app-stack-content" style={{ flex: 1 }}>
+              <AppWallpaper />
               <SafeAreaProvider>
                 <Stack
                   UNSTABLE_router={channelStackRouter}
@@ -134,7 +138,9 @@ function RootNavigator() {
                     headerShadowVisible: false,
                     headerBackButtonDisplayMode: 'minimal',
                     headerBackTitle: t.back,
-                    contentStyle: { backgroundColor: theme.background },
+                    contentStyle: {
+                      backgroundColor: wallpaperActive ? 'transparent' : theme.background,
+                    },
                     unstable_nativeProps:
                       Platform.OS === 'android'
                         ? {
