@@ -15,6 +15,7 @@ import {
   SettingsRow,
   type SettingsRowControl,
 } from '../primitives/settings-row';
+import { Text } from '../primitives/text';
 import { useStrings, t } from '../strings';
 import {
   Sheet,
@@ -161,6 +162,9 @@ export function ModelSheet({
               <SheetCallout tone="warning">{t.modelRepair}</SheetCallout>
             ) : null}
             {error === undefined ? null : <SheetCallout tone="danger">{error}</SheetCallout>}
+            <Text testID="model-catalog-debug">
+              {`raw ${value.rawModelCount ?? value.models.length} / parsed ${value.models.length} / owner ${value.owner ? 'Y' : 'N'} / allowed ${typeof value.allowed === 'number' ? value.allowed : '-'}`}
+            </Text>
           </>
         }
         ListEmptyComponent={<SheetNote>{t.modelNoneAvailable}</SheetNote>}

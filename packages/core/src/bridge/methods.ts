@@ -3753,6 +3753,8 @@ function buildBridgeMethods(
                     allowed.all || allowed.routes.includes(`${route.provider}/${route.model}`),
                 )
                 .map(({ credential: _credential, ...route }) => route),
+              owner: false,
+              allowed: allowed.routes.length,
             },
           };
         }
@@ -3766,6 +3768,8 @@ function buildBridgeMethods(
           ok: true,
           value: {
             models,
+            owner: true,
+            allowed: models.length,
             ...(defaultRoute === undefined ? {} : { default: defaultRoute }),
             ...(defaultRevision === undefined ? {} : { defaultRevision }),
           },

@@ -26,6 +26,7 @@ import { SearchField } from '../primitives/search-field';
 import { SettingsGroupItem, SettingsRow, SettingsSection } from '../primitives/settings-row';
 import { SheetPage } from '../primitives/sheet-page';
 import { TextField } from '../primitives/text-field';
+import { Text } from '../primitives/text';
 import { useStrings, t } from '../strings';
 import { SHEET_GROUP, SheetCallout, SheetFailed, SheetLoading, SheetNote } from './sheet';
 import { LoadingIndicator } from '../primitives/loading-indicator';
@@ -237,6 +238,9 @@ function ModelsView({
           placeholder={t.modelSettings.search}
           onChangeText={setQuery}
         />
+        <Text testID="model-catalog-debug">
+          {`raw ${value?.rawModelCount ?? value?.models.length ?? 0} / parsed ${value?.models.length ?? 0} / owner ${value?.owner ? 'Y' : 'N'} / allowed ${typeof value?.allowed === 'number' ? value.allowed : '-'}`}
+        </Text>
         {banner}
         {models.busy ? <LoadingIndicator /> : null}
         <FlatList
