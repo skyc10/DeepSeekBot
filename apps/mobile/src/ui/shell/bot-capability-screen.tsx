@@ -10,7 +10,7 @@ import { SettingsForm, SettingsFormItem } from '../primitives/settings-form';
 import { SettingsRow, SettingsSection } from '../primitives/settings-row';
 import { Text } from '../primitives/text';
 import { useStrings } from '../strings';
-import { SHEET_GROUP } from './sheet';
+import { SHEET_GROUP } from '../chat/sheet';
 
 function CapabilityRow({
   client,

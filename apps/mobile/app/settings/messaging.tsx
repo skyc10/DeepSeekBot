@@ -1,13 +1,13 @@
 import { useRouter } from 'expo-router';
 
-import { SHEET_GROUP } from '../chat/sheet';
-import { DeliveryReceiptSetting } from '../shell/delivery-receipt-setting';
-import { MessageDisplaySetting } from '../shell/message-display-settings';
-import { SendJumpSetting } from '../shell/send-jump-setting';
-import { SettingsForm, SettingsFormItem } from '../primitives/settings-form';
-import { SettingsRow, SettingsSection } from '../primitives/settings-row';
-import { Text } from '../primitives/text';
-import { useStrings } from '../strings';
+import { SHEET_GROUP } from '../../src/ui/chat/sheet';
+import { DeliveryReceiptSetting } from '../../src/ui/shell/delivery-receipt-setting';
+import { MessageDisplaySetting } from '../../src/ui/shell/message-display-settings';
+import { SendJumpSetting } from '../../src/ui/shell/send-jump-setting';
+import { SettingsForm, SettingsFormItem } from '../../src/ui/primitives/settings-form';
+import { SettingsRow, SettingsSection } from '../../src/ui/primitives/settings-row';
+import { Text } from '../../src/ui/primitives/text';
+import { useStrings } from '../../src/ui/strings';
 
 export default function MessagingScreen() {
   const t = useStrings();

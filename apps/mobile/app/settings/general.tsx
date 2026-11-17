@@ -1,12 +1,12 @@
 import { useRouter } from 'expo-router';
 
-import { SHEET_GROUP } from '../chat/sheet';
-import { HapticFeedbackSetting } from '../shell/haptic-feedback-setting';
-import { AppearanceSetting, InterfaceSaveNotice, LanguageSetting } from '../interface-settings';
-import { SettingsForm, SettingsFormItem } from '../primitives/settings-form';
-import { SettingsRow, SettingsSection } from '../primitives/settings-row';
-import { Text } from '../primitives/text';
-import { useStrings } from '../strings';
+import { SHEET_GROUP } from '../../src/ui/chat/sheet';
+import { HapticFeedbackSetting } from '../../src/ui/shell/haptic-feedback-setting';
+import { AppearanceSetting, InterfaceSaveNotice, LanguageSetting } from '../../src/ui/interface-settings';
+import { SettingsForm, SettingsFormItem } from '../../src/ui/primitives/settings-form';
+import { SettingsRow, SettingsSection } from '../../src/ui/primitives/settings-row';
+import { Text } from '../../src/ui/primitives/text';
+import { useStrings } from '../../src/ui/strings';
 
 export default function GeneralScreen() {
   const t = useStrings();

@@ -1,11 +1,11 @@
 import { useRouter } from 'expo-router';
 
-import { useHostSession, useHostSnapshot } from '../../host/host-session';
-import { SHEET_GROUP } from '../chat/sheet';
-import { SettingsForm, SettingsFormItem } from '../primitives/settings-form';
-import { SettingsRow, SettingsSection } from '../primitives/settings-row';
-import { Text } from '../primitives/text';
-import { useStrings } from '../strings';
+import { useHostSession, useHostSnapshot } from '../../src/host/host-session';
+import { SHEET_GROUP } from '../../src/ui/chat/sheet';
+import { SettingsForm, SettingsFormItem } from '../../src/ui/primitives/settings-form';
+import { SettingsRow, SettingsSection } from '../../src/ui/primitives/settings-row';
+import { Text } from '../../src/ui/primitives/text';
+import { useStrings } from '../../src/ui/strings';
 
 export default function AutoApprovalScreen() {
   const t = useStrings();
