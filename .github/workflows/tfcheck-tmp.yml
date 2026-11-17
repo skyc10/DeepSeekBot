@@ -1,0 +1,22 @@
+name: tfcheck-tmp
+on:
+  push:
+    branches: [tfcheck-tmp]
+permissions: { contents: read }
+jobs:
+  roottsc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: root tsc (full pr-unified)
+        run: npx tsc --noEmit 2>&1 | tee /tmp/f.txt || true
+      - name: count
+        run: |
+          grep -oE 'error TS[0-9]+: .*' /tmp/f.txt | sed -E 's/\([0-9]+,[0-9]+\)//' | sort -u > /tmp/f.set || true
+          echo "FULL_ROOT_ERRORS=$(wc -l < /tmp/f.set)"
+          head -5 /tmp/f.set
