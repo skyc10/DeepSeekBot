@@ -1,0 +1,53 @@
+name: bis3-tmp
+on:
+  push:
+    branches: [bis3-tmp]
+permissions: { contents: read }
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        idx: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: 18cd53da66eafa62cc26710fee9659e6cf8d1e1a }
+      - name: Remove one test by index
+        shell: bash
+        run: |
+          FILES=(
+            apps/mobile/test/app-setup-screen.test.tsx
+            apps/mobile/test/appearance-contrast.test.ts
+            apps/mobile/test/appearance-material.test.ts
+            apps/mobile/test/appearance-model.test.ts
+            apps/mobile/test/appearance-store.test.ts
+            apps/mobile/test/appearance-wallpaper-pick.test.ts
+            apps/mobile/test/cloud-connections-screen.test.tsx
+            apps/mobile/test/credentials-screen.test.tsx
+            apps/mobile/test/host-app-setup.test.ts
+            apps/mobile/test/host-cloud.test.ts
+            apps/mobile/test/host-credentials.test.ts
+            apps/mobile/test/host-settings-screen.test.tsx
+            apps/mobile/test/host-settings.test.ts
+            apps/mobile/test/model-switch-display.test.ts
+            apps/mobile/test/root-alert-insets.test.tsx
+            apps/mobile/test/route-selector.test.tsx
+            apps/mobile/test/settings-home.test.ts
+            apps/mobile/test/settings-sheet.test.tsx
+            apps/mobile/test/usage-screen.test.tsx
+          )
+          F="${FILES[$(( ${{ matrix.idx }} - 1 ))]}"
+          echo "REMOVING=$F"
+          rm -f "$F"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: root tsc
+        run: npx tsc --noEmit 2>&1 | tee /tmp/o.txt || true
+      - name: count
+        run: |
+          grep -oE 'error TS[0-9]+: .*' /tmp/o.txt | sed -E 's/\([0-9]+,[0-9]+\)//' | sort -u > /tmp/o.set || true
+          echo "IDX_${{ matrix.idx }}_ERRORS=$(wc -l < /tmp/o.set)"
