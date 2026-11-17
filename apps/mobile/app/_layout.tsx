@@ -102,6 +102,10 @@ function RootNavigator() {
     ['activity-count', t.activityCountSettings.title],
     ['appearance', t.themeSettings.title],
     ['chat-background', t.chatBackground.global],
+    ['capability', t.profilePermissions.access],
+    ['connections', t.settingsHome.connections],
+    ['data-privacy', t.settingsHome.dataPrivacy],
+    ['about', t.settingsHome.about],
   ];
   const profileListeners = swipeEntryListeners(
     profileScreenOptions(design, reducedMotion).animation,
