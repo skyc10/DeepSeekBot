@@ -2791,6 +2791,7 @@ const en = {
     capabilityDisable: 'Disable',
     capabilityDisableHint: (kind: string, name: string) =>
       `After disabling, ${name} can no longer operate this ${kind}.`,
+    advancedHint: 'Host configuration writes managed on this computer.',
     capabilityIntro: 'Choose which Bots may use this capability. Each change asks for confirmation.',
     capabilityEmpty: 'No Bots to configure yet.',
     capabilityFailed: 'Could not save access. Try again.',
@@ -5397,6 +5398,7 @@ const zh: typeof en = {
     capabilityDisable: '关闭',
     capabilityDisableHint: (kind: string, name: string) =>
       `关闭后，${name} 将无法再操作这台${kind}。`,
+    advancedHint: '在这台电脑上管理主机设置写入。',
     capabilityIntro: '选择允许使用此能力的 Bot，每次更改都会二次确认。',
     capabilityEmpty: '还没有可配置的 Bot。',
     capabilityFailed: '未能保存授权，请重试。',

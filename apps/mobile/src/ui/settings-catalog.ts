@@ -43,7 +43,7 @@ export const SETTINGS_CATALOG: readonly SettingsCatalogEntry[] = [
   { id: 'account', label: 'account', group: 'identity', icon: 'account', status: 'ready', route: '/settings/profile' },
   { id: 'general', label: 'general', group: 'identity', icon: 'system', status: 'soon' },
   { id: 'appearance', label: 'appearance', group: 'identity', icon: 'appearance', status: 'ready', route: '/settings/appearance' },
-  { id: 'models', label: 'models', group: 'agent', icon: 'model', status: 'ready', route: '/settings/models' },
+  { id: 'models', label: 'models', group: 'agent', icon: 'model', status: 'ready', route: '/settings/model-runtime' },
   { id: 'autoApproval', label: 'autoApproval', group: 'agent', icon: 'rules', status: 'soon' },
   { id: 'prompts', label: 'prompts', group: 'agent', icon: 'messageDisplay', status: 'desktop' },
   { id: 'voice', label: 'voice', group: 'agent', icon: 'haptics', status: 'desktop' },
@@ -56,7 +56,7 @@ export const SETTINGS_CATALOG: readonly SettingsCatalogEntry[] = [
   { id: 'companion', label: 'companion', group: 'capability', icon: 'account', status: 'desktop' },
   { id: 'connections', label: 'connections', group: 'capability', icon: 'lan', status: 'ready', route: '/settings/connections' },
   { id: 'dataPrivacy', label: 'dataPrivacy', group: 'system', icon: 'storage', status: 'ready', route: '/settings/data-privacy' },
-  { id: 'advanced', label: 'advanced', group: 'system', icon: 'access', status: 'desktop' },
+  { id: 'advanced', label: 'advanced', group: 'system', icon: 'access', status: 'ready', route: '/settings/advanced' },
   { id: 'plugins', label: 'plugins', group: 'system', icon: 'folder', status: 'desktop' },
   { id: 'about', label: 'about', group: 'system', icon: 'version', status: 'ready', route: '/settings/about' },
 ];

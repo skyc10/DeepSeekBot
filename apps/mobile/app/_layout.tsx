@@ -106,6 +106,8 @@ function RootNavigator() {
     ['connections', t.settingsHome.connections],
     ['data-privacy', t.settingsHome.dataPrivacy],
     ['about', t.settingsHome.about],
+    ['model-runtime', t.settingsHome.models],
+    ['advanced', t.settingsHome.advanced],
   ];
   const profileListeners = swipeEntryListeners(
     profileScreenOptions(design, reducedMotion).animation,

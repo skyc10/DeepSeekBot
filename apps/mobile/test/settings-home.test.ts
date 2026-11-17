@@ -52,8 +52,15 @@ describe('settings home catalog', () => {
       'browserControl',
       'connections',
       'dataPrivacy',
+      'advanced',
       'about',
     ]);
+    expect(SETTINGS_CATALOG.find((entry) => entry.id === 'models')?.route).toBe(
+      '/settings/model-runtime',
+    );
+    expect(SETTINGS_CATALOG.find((entry) => entry.id === 'advanced')?.route).toBe(
+      '/settings/advanced',
+    );
     expect(ready.every((entry) => entry.route?.startsWith('/settings/'))).toBe(true);
   });
 
@@ -64,7 +71,6 @@ describe('settings home catalog', () => {
       'voice',
       'shortcuts',
       'companion',
-      'advanced',
       'plugins',
     ]);
     expect(desktop.every((entry) => entry.route === undefined)).toBe(true);
