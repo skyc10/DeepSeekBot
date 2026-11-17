@@ -1,0 +1,41 @@
+name: verify-unified-tmp
+on:
+  push:
+    branches: [verify-unified-tmp]
+permissions:
+  contents: read
+jobs:
+  incremental-typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 18cd53da66eafa62cc26710fee9659e6cf8d1e1a
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck RELEASE (pr-unified)
+        run: pnpm typecheck 2>&1 | tee /tmp/release-err.txt || true
+      - name: Collect release errors
+        run: |
+          grep -oE 'error TS[0-9]+: .*' /tmp/release-err.txt | sed -E 's/\([0-9]+,[0-9]+\)//' | sort -u > /tmp/release-set.txt || true
+          echo "RELEASE_TS_ERRORS=$(wc -l < /tmp/release-set.txt)"
+      - name: Checkout baseline upstream
+        run: |
+          git fetch --no-tags --depth=1 origin 6c2be1710d753c29cf8e4d244683add8b5fd8719
+          git checkout -q 6c2be1710d753c29cf8e4d244683add8b5fd8719
+          pnpm install --frozen-lockfile
+      - name: Typecheck BASELINE (upstream)
+        run: pnpm typecheck 2>&1 | tee /tmp/base-err.txt || true
+      - name: Collect baseline errors and diff
+        run: |
+          grep -oE 'error TS[0-9]+: .*' /tmp/base-err.txt | sed -E 's/\([0-9]+,[0-9]+\)//' | sort -u > /tmp/base-set.txt || true
+          echo "BASELINE_TS_ERRORS=$(wc -l < /tmp/base-set.txt)"
+          echo "=== NEW ERRORS (release - baseline) ==="
+          comm -23 /tmp/release-set.txt /tmp/base-set.txt | tee /tmp/new-errors.txt
+          echo "NEW_ERROR_COUNT=$(wc -l < /tmp/new-errors.txt)"
+          test ! -s /tmp/new-errors.txt
